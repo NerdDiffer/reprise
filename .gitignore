@@ -1,3 +1,26 @@
-node_modules
+.DS_STORE
 
-client/public/bundle.js
+# sensitive info
+.env*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Compiled Dirs (http://nodejs.org/api/addons.html)
+client/public/*.bundle.js
+
+# Dependency directorys
+node_modules/
+
+# Editor stuff
+.sw*
