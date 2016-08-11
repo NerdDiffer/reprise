@@ -20,16 +20,14 @@ const rooms = {};
 io.on('connection', socket => {
   socket.on('join', room => {
     console.log('joining room', room);
-    const numberOfClients = io.of('/').in(room).clients.length;
-    console.log('number', numberOfClients);
-    // var numberOfClients = 1;
+    rooms[room] = rooms[room] || [];
+    const numberOfClients = rooms[room].length;
     if (numberOfClients >= 4) {
       socket.emit('full', room);
     } else {
       socket.join(room);
       rooms[room] = rooms[room] || [];
       rooms[room].push(socket.id.slice(2));
-      // io.in(room).emit('new.peer', rooms[room]);
       io.to(room).emit('new.peer', rooms[room]);
     }
   });
