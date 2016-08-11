@@ -1,9 +1,14 @@
+/* Requires */
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+const http = require('http');
+const socketIO = require('socket.io');
 
+/* Init */
 const app = express();
-const server = require('http').Server(app);
+const server = http.createServer(app);
+const io = socketIO.listen(server);
 
 /* Middleware */
 
@@ -14,7 +19,6 @@ app.use(express.static(pathToStaticDir));
 
 /* Sockets */
 
-const io = require('socket.io')(server);
 
 const rooms = {};
 io.on('connection', socket => {
