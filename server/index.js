@@ -1,8 +1,9 @@
 const express = require('express');
-const logger = require('morgan');
 const path = require('path');
+const logger = require('morgan');
 
 const app = express();
+const server = require('http').Server(app);
 
 /* Middleware */
 
@@ -10,6 +11,37 @@ app.use(logger('dev'));
 
 const pathToStaticDir = path.resolve(__dirname, '..', 'client/public');
 app.use(express.static(pathToStaticDir));
+
+/* Sockets */
+
+const io = require('socket.io')(server);
+
+const rooms = {};
+io.on('connection', socket => {
+  socket.on('join', room => {
+    console.log('joining room', room);
+    const numberOfClients = io.of('/').in(room).clients.length;
+    console.log('number', numberOfClients);
+    // var numberOfClients = 1;
+    if (numberOfClients >= 4) {
+      socket.emit('full', room);
+    } else {
+      socket.join(room);
+      rooms[room] = rooms[room] || [];
+      rooms[room].push(socket.id.slice(2));
+      // io.in(room).emit('new.peer', rooms[room]);
+      io.to(room).emit('new.peer', rooms[room]);
+    }
+  });
+
+  socket.on('offer', offer => {
+    socket.broadcast.emit('offer', offer);
+  });
+
+  socket.on('answer', data => {
+    socket.broadcast.emit('answer', data);
+  });
+});
 
 /* Routes */
 
@@ -20,5 +52,7 @@ app.get('/', (req, res) => {
 /* Initialize */
 
 const port = process.env.PORT || 3000;
-app.listen(port);
-console.log('Server is listening on port', port);
+
+server.listen(port, () => {
+  console.log('Listening on port', port);
+});
