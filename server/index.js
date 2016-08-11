@@ -29,6 +29,13 @@ io.on('connection', socket => {
       rooms[room] = rooms[room] || [];
       rooms[room].push(socket.id.slice(2));
       io.to(room).emit('new.peer', rooms[room]);
+
+      socket.on('disconnect', () => {
+        const socketsInRoom = rooms[room];
+        socketsInRoom.splice(socketsInRoom.indexOf(socket.id.slice(2)), 1);
+        console.log('disconnecting', socketsInRoom, socket.id);
+        socket.leave(room);
+      });
     }
   });
 
