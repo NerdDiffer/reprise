@@ -54,8 +54,9 @@ io.on('connection', socket => {
 
 /* Routes */
 
-app.get('/', (req, res) => {
-  res.status(200).send();
+app.get('*', (req, res) => {
+  const pathToIndex = path.join(pathToStaticDir, 'index.html');
+  res.status(200).sendFile(pathToIndex);
 });
 
 /* Initialize */
