@@ -22,27 +22,39 @@ app.use(express.static(pathToStaticDir));
 
 const rooms = {};
 io.on('connection', socket => {
-  socket.on('join', room => {
-    console.log('joining room', room);
-    rooms[room] = rooms[room] || [];
-    const numberOfClients = rooms[room].length;
-    if (numberOfClients >= 4) {
-      socket.emit('full', room);
-    } else {
-      socket.join(room);
-      rooms[room] = rooms[room] || [];
-      rooms[room].push(socket.id.slice(2));
-      io.to(room).emit('new.peer', rooms[room]);
+  socket.on('create room', roomId => {
+    rooms[roomId] = [];
+  });
 
-      socket.on('disconnect', () => {
-        const socketsInRoom = rooms[room];
-        socketsInRoom.splice(socketsInRoom.indexOf(socket.id.slice(2)), 1);
-        console.log('disconnecting', socketsInRoom, socket.id);
-        socket.leave(room);
-      });
+  socket.on('join', room => {
+    if (!rooms[room]) {
+      console.log('Not a valid room');
+      // send socket message to user?
+      io.to(socket.id).emit('invalid room');
+    } else {
+      console.log('joining room', room);
+      rooms[room] = rooms[room] || [];
+
+      const numberOfClients = rooms[room].length;
+      if (numberOfClients >= 4) {
+        socket.emit('full', room);
+      } else {
+        socket.join(room);
+        rooms[room] = rooms[room] || [];
+        rooms[room].push(socket.id.slice(2));
+        io.to(room).emit('new.peer', rooms[room]);
+
+        socket.on('disconnect', () => {
+          const socketsInRoom = rooms[room];
+          socketsInRoom.splice(socketsInRoom.indexOf(socket.id.slice(2)), 1);
+          console.log('disconnecting', socketsInRoom, socket.id);
+          socket.leave(room);
+        });
+      }
     }
   });
 
+  // TODO: add to room for offer/answer emits
   socket.on('offer', offer => {
     socket.broadcast.emit('offer', offer);
   });
