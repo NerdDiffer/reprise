@@ -22,6 +22,8 @@ app.use(express.static(pathToStaticDir));
 
 const rooms = {};
 io.on('connection', socket => {
+  console.log('Socket connected with ID: ', socket.id);
+
   socket.on('create room', roomId => {
     rooms[roomId] = [];
   });
@@ -45,6 +47,7 @@ io.on('connection', socket => {
         io.to(room).emit('new.peer', rooms[room]);
 
         socket.on('disconnect', () => {
+          console.log('Socket disconnected with ID: ', socket.id);
           const socketsInRoom = rooms[room];
           socketsInRoom.splice(socketsInRoom.indexOf(socket.id.slice(2)), 1);
           console.log('disconnecting', socketsInRoom, socket.id);
