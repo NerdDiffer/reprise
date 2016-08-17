@@ -25,7 +25,12 @@ io.on('connection', socket => {
   console.log('Socket connected with ID: ', socket.id);
 
   socket.on('create room', roomId => {
-    rooms[roomId] = [];
+    if (rooms[roomId]) {
+      io.to(socket.id).emit('room name taken');
+    } else {
+      rooms[roomId] = [];
+      io.to(socket.id).emit('room created', roomId);
+    }
   });
 
   socket.on('join', room => {
