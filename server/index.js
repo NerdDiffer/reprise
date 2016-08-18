@@ -89,9 +89,7 @@ io.on('connection', socket => {
   });
 
   socket.on('give peer info', (info) => {
-    socket.to(info.roomId).broadcast.emit('peer info', info);
-    // this doesn't work!!! why???? GAHHH THE WORLD HATES ME
-    // io.to(info.sendTo).emit('peer info', info);
+    io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 });
 
