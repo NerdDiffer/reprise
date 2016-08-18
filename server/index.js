@@ -80,15 +80,15 @@ io.on('connection', socket => {
     io.to(`/#${answer.to}`).emit('answer', answer);
   });
 
-  socket.on('peer info', (peerInfo) => {
+  socket.on('peer info', peerInfo => {
     socket.to(peerInfo.roomId).broadcast.emit('peer info', peerInfo);
   });
 
-  socket.on('ask for peer info', (info) => {
+  socket.on('ask for peer info', info => {
     socket.to(info.roomId).broadcast.emit('ask for peer info', info);
   });
 
-  socket.on('give peer info', (info) => {
+  socket.on('give peer info', info => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 });
