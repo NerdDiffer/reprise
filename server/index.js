@@ -23,7 +23,7 @@ const rooms = {};
 
 io.on('connection', socket => {
   console.log('Socket connected with ID: ', socket.id);
-  
+
   socket.on('create room', roomId => {
     rooms[roomId] = [];
   });
@@ -58,7 +58,7 @@ io.on('connection', socket => {
       });
     }
   });
- 
+
   socket.on('exit room', data => {
     const room = rooms[data.room];
     if (room !== undefined) {
@@ -78,6 +78,18 @@ io.on('connection', socket => {
 
   socket.on('answer', answer => {
     io.to(`/#${answer.to}`).emit('answer', answer);
+  });
+
+  socket.on('peer info', peerInfo => {
+    socket.to(peerInfo.roomId).broadcast.emit('peer info', peerInfo);
+  });
+
+  socket.on('ask for peer info', info => {
+    socket.to(info.roomId).broadcast.emit('ask for peer info', info);
+  });
+
+  socket.on('give peer info', info => {
+    io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 });
 
