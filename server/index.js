@@ -100,41 +100,11 @@ io.on('connection', socket => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 
-  socket.on('get rooms', () => {
-    socket.emit('give rooms', rooms);
-  });
-
-  socket.on('rooms', (data) => { io.emit('rooms', data); });
-
-  // socket.on('foobar', (id) => {
-  //   io.to(`/#${id}`).emit('foobar', getRoomsInfo(rooms));
+  // socket.on('get rooms', () => {
+  //   socket.emit('give rooms', rooms);
   // });
 
-  // function getRoomsInfo(roomData) {
-  //   const container = [];
-  //   const roomNames = Object.keys(roomData);
-  //   for (let i = 0; i < roomNames.length; i++) {
-  //     container.push({ roomName: roomNames[i], numPeople: 0, instruments: [] });
-  //   }
-
-  //   recurseOverRooms(roomNames, 0);
-
-  //   function recurseOverRooms(arr, index) {
-  //     if (arr.length === 0) { return; }
-  //     recurseOverPeers(rooms[arr[0].roomName], arr[0].roomName, index);
-  //     recurseOverRooms(arr.slice(1), index + 1);
-  //   }
-
-  //   function recurseOverPeers(arr, iD, index) {
-  //     if (arr.length === 0) { return; }
-  //     io.to(`/#${arr[0]}`).emit('get info');
-  //     socket.on('get info', (info) => {
-  //       container[index].numPeople++;
-  //       container[index].instrument.push(info.instrument);
-  //       recurseOverPeers(arr.slice(1), iD);
-  //     });
-  //   }
-  // }
+  // socket.on('rooms', (data) => { io.emit('rooms', data); });
 });
 
 /* Routes */
