@@ -116,11 +116,35 @@ io.on('connection', socket => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 
-  // socket.on('get rooms', () => {
-  //   socket.emit('give rooms', rooms);
-  // });
+  socket.on('get rooms info', id => {
+    io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
+  });
+
+  socket.on('instrument select', data => {
+    const room = rooms[data.roomId];
+    for (let i = 0; i < room.length; i++) {
+      if (room[i].peerId === data.peerId) {
+        room[i].instrument = data.instrument;
+        break;
+      }
+    }
+  });
+
+  // TO DO: when select instrument is written client side, a new instrument select should emit a 'give rooms info' event
 
   // socket.on('rooms', (data) => { io.emit('rooms', data); });
+  function getRoomsInfo(roomObj) {
+    const roomNames = Object.keys(roomObj);
+    const container = [];
+    for (let i = 0; i < roomNames.length; i++) {
+      container.push({
+        roomName: roomNames[i],
+        numPeople: roomObj[roomNames[i]].length,
+        instruments: roomObj[roomNames[i]].map(peer => peer.instrument),
+      });
+    }
+    return container;
+  }
 });
 
 /* Routes */
