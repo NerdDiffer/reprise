@@ -46,6 +46,8 @@ io.on('connection', socket => {
       socket.join(room);
       rooms[room].push({ peerId: socket.id.slice(2), instrument: undefined });
       console.log('room is', rooms[room]);
+      // update creaorjoin open room table
+      io.emit('give rooms info', getRoomsInfo(rooms));
       // emit message to socket which just joined
       io.to(socket.id).emit('joined', rooms[room]);
       // emit message to other sockets in room
@@ -70,7 +72,8 @@ io.on('connection', socket => {
           socket.leave(room);
           socket.broadcast.to(room).emit('remove connection', id);
         }
-        // socket.emit('give rooms', rooms);
+        // update creaorjoin open room table
+        io.emit('give rooms info', getRoomsInfo(rooms));
       });
     }
   });
@@ -92,7 +95,8 @@ io.on('connection', socket => {
       // socket.broadcast.to(`/#${data.id}`).emit('close');
       console.log(rooms[data.room]);
       socket.broadcast.to(data.room).emit('remove connection', data.id);
-      // socket.emit('give rooms', rooms);
+      // update creaorjoin open room table
+      io.emit('give rooms info', getRoomsInfo(rooms));
     }
   });
 
@@ -117,6 +121,7 @@ io.on('connection', socket => {
   });
 
   socket.on('get rooms info', id => {
+    // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
   });
 
@@ -128,6 +133,8 @@ io.on('connection', socket => {
         break;
       }
     }
+    // update creaorjoin open room table
+    io.emit('give rooms info', getRoomsInfo(rooms));
   });
 
   // TO DO: when select instrument is written client side, a new instrument select should emit a 'give rooms info' event
