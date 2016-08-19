@@ -137,8 +137,6 @@ io.on('connection', socket => {
     io.emit('give rooms info', getRoomsInfo(rooms));
   });
 
-  // TO DO: when select instrument is written client side, a new instrument select should emit a 'give rooms info' event
-
   // socket.on('rooms', (data) => { io.emit('rooms', data); });
   function getRoomsInfo(roomObj) {
     const roomNames = Object.keys(roomObj);
