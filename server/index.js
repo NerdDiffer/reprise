@@ -30,6 +30,7 @@ io.on('connection', socket => {
     } else {
       rooms[roomId] = [];
       io.to(socket.id).emit('room created', roomId);
+      // socket.emit('give rooms', rooms);
     }
   });
 
@@ -49,7 +50,7 @@ io.on('connection', socket => {
       io.to(socket.id).emit('joined', rooms[room]);
       // emit message to other sockets in room
       socket.broadcast.to(room).emit('new peer');
-
+      // socket.emit('give rooms', rooms);
       socket.on('disconnect', () => {
         const socketsInRoom = rooms[room];
         const id = socket.id.slice(2);
@@ -60,6 +61,7 @@ io.on('connection', socket => {
           socket.leave(room);
           socket.broadcast.to(room).emit('remove connection', id);
         }
+        // socket.emit('give rooms', rooms);
       });
     }
   });
@@ -74,6 +76,7 @@ io.on('connection', socket => {
       // socket.broadcast.to(`/#${data.id}`).emit('close');
       console.log(rooms[data.room]);
       socket.broadcast.to(data.room).emit('remove connection', data.id);
+      // socket.emit('give rooms', rooms);
     }
   });
 
@@ -96,6 +99,42 @@ io.on('connection', socket => {
   socket.on('give peer info', info => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
+
+  socket.on('get rooms', () => {
+    socket.emit('give rooms', rooms);
+  });
+
+  socket.on('rooms', (data) => { io.emit('rooms', data); });
+
+  // socket.on('foobar', (id) => {
+  //   io.to(`/#${id}`).emit('foobar', getRoomsInfo(rooms));
+  // });
+
+  // function getRoomsInfo(roomData) {
+  //   const container = [];
+  //   const roomNames = Object.keys(roomData);
+  //   for (let i = 0; i < roomNames.length; i++) {
+  //     container.push({ roomName: roomNames[i], numPeople: 0, instruments: [] });
+  //   }
+
+  //   recurseOverRooms(roomNames, 0);
+
+  //   function recurseOverRooms(arr, index) {
+  //     if (arr.length === 0) { return; }
+  //     recurseOverPeers(rooms[arr[0].roomName], arr[0].roomName, index);
+  //     recurseOverRooms(arr.slice(1), index + 1);
+  //   }
+
+  //   function recurseOverPeers(arr, iD, index) {
+  //     if (arr.length === 0) { return; }
+  //     io.to(`/#${arr[0]}`).emit('get info');
+  //     socket.on('get info', (info) => {
+  //       container[index].numPeople++;
+  //       container[index].instrument.push(info.instrument);
+  //       recurseOverPeers(arr.slice(1), iD);
+  //     });
+  //   }
+  // }
 });
 
 /* Routes */
