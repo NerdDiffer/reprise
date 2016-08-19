@@ -137,7 +137,6 @@ io.on('connection', socket => {
     io.emit('give rooms info', getRoomsInfo(rooms));
   });
 
-  // socket.on('rooms', (data) => { io.emit('rooms', data); });
   function getRoomsInfo(roomObj) {
     const roomNames = Object.keys(roomObj);
     const container = [];
