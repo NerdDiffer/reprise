@@ -44,7 +44,7 @@ io.on('connection', socket => {
       socket.emit('full', room);
     } else {
       socket.join(room);
-      rooms[room].push(socket.id.slice(2));
+      rooms[room].push({ peerId: socket.id.slice(2), instrument: undefined });
       console.log('room is', rooms[room]);
       // emit message to socket which just joined
       io.to(socket.id).emit('joined', rooms[room]);
@@ -54,8 +54,17 @@ io.on('connection', socket => {
       socket.on('disconnect', () => {
         const socketsInRoom = rooms[room];
         const id = socket.id.slice(2);
-        const index = socketsInRoom.indexOf(id);
-        if (index > -1) {
+        let inRoom = false;
+        let index;
+        // check to make sure peer is in room and get index of peer
+        for (let i = 0; i < socketsInRoom.length; i++) {
+          if (socketsInRoom[i].peerId === id) {
+            inRoom = true;
+            index = i;
+            break;
+          }
+        }
+        if (inRoom) {
           console.log('disconnect', id);
           socketsInRoom.splice(index, 1);
           socket.leave(room);
@@ -69,7 +78,14 @@ io.on('connection', socket => {
   socket.on('exit room', data => {
     const room = rooms[data.room];
     if (room !== undefined) {
-      const index = room.indexOf(data.id);
+      let index;
+      // check to make sure peer is in room and get index of peer
+      for (let i = 0; i < room.length; i++) {
+        if (room[i].peerId === data.id) {
+          index = i;
+          break;
+        }
+      }
       console.log('exit room', data);
       room.splice(index, 1);
       socket.leave(data.room);
