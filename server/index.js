@@ -88,6 +88,8 @@ const rooms = {};
 io.on('connection', socket => {
   console.log('Socket connected with ID: ', socket.id);
 
+  io.to(socket.id).emit('connected');
+
   socket.on('create room', roomId => {
     if (rooms[roomId]) {
       io.to(socket.id).emit('room name taken');
