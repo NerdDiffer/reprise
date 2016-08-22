@@ -37,19 +37,18 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new FacebookStrategy({
+const fbConfig = {
   clientID: process.env.client_Id,
   clientSecret: process.env.client_Secret,
   callbackURL: "http://localhost:3000/auth/facebook/callback"
-},
+};
 
-  (accessToken, refreshToken, profile, done) => {
-    console.log('this is the profile', profile.id);
-    users.findAll({ where: { facebookId: profile.id }
+passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
+  console.log('this is the profile', profile.id);
+  users.findAll({ where: { facebookId: profile.id }
   }).then(user => {
     if (user.length > 0) {
       console.log('user already exists', user[0]);
-      //console.log('this is req.sesion', req.session);
       return done(null, user);
     } else {
       users.create({
@@ -58,14 +57,13 @@ passport.use(new FacebookStrategy({
         facebookId: profile.id,
         token: accessToken,
       }).then(entry => {
-        //console.log('this is req.sesion', req.session);
         console.log('this is entry for a newly added user', entry.dataValues.id);
         console.log(entry.dataValues, ' got entered', entry);
         return done(null, entry.dataValues.id);
       });
     }
   });
-  }
+}
 ));
 
 
