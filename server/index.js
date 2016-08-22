@@ -10,14 +10,13 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const expressSession=require('express-session');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
-require("dotenv").config()
+require("dotenv").config();
 /* Init */
 const app = express();
 const server = http.createServer(app);
 const io = socketIO.listen(server);
 /* DB  */
 const users = require('./db/connection').users;
-const instruments = require('./db/connection').instruments;
 /* Middleware */
 app.use(cookieParser());
 app.use(logger('dev'));
