@@ -352,8 +352,14 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
 });
 
 app.get("/fbLoggedIn?", (req, res) => {
-  console.log(req.session.passport);
-  res.send(req.session.passport ? "true" : "false");
+  if (req.session.passport) {
+    users.findAll({ where: { id: req.session.passport.user } }).then(
+people => { console.log('fbpeople', people[0].dataValues.userName);
+  res.send(people[0].dataValues.userName);
+});
+  } else {
+    res.send("false");
+  }
 });
 
 app.get('*', (req, res) => {
