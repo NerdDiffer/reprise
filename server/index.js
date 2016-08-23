@@ -260,9 +260,7 @@ app.post('/login', (req, res) => {
     }
   }).then(person => {
     if (person[0]===undefined) {
-      console.log('line 261 case caught');
       console.log('BadLogin');
-      console.log('req.session', req.session);
       res.send("");
     } else {
       console.log(person[0], 'Person[0]!!!');
@@ -279,18 +277,15 @@ app.post('/login', (req, res) => {
               userName: req.body.user
             }
           }).then(
-            userInstruments => {
-              return userInstruments.map(a => a.dataValues);
-            }).then(userInstrumentsList => {
-              console.log('line 281 case caught');
+            userInstruments => (
+               userInstruments.map(a => a.dataValues)
+            )).then(userInstrumentsList => {
               console.log("succ logged in", userInstrumentsList);
               req.session.userName = req.body.user;
               res.send(userInstrumentsList);
             });
         } else {
-          console.log('line 290 case caught');
           console.log('BadLogin');
-          console.log('req.session', req.session);
           res.send("");
         }
       });
@@ -333,25 +328,23 @@ app.get('/auth/facebook/callback',
 );
 
 app.get("/userLoggedInToMakeInst", (req, res) => {
-
   const person=req.session.userName||req.session.passport;
-
   console.log(person, 'person!!!');
 
   if (req.session.passport) {
     // users.findAll({ where: { id: person.user } }).then(
     instruments.findAll({ where: { id: person.user } }).then(
-        userInstruments => {
-          return userInstruments.map(a => a.dataValues);
-        }).then(userInstrumentsList => {
+        userInstruments => (
+           userInstruments.map(a => a.dataValues)
+        )).then(userInstrumentsList => {
           console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
   } else {
     instruments.findAll({ where: { userName: person } }).then(
-        userInstruments => {
-          return userInstruments.map(a => a.dataValues);
-        }).then(userInstrumentsList => {
+        userInstruments => (
+           userInstruments.map(a => a.dataValues)
+        )).then(userInstrumentsList => {
           console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });

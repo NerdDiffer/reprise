@@ -20,4 +20,4 @@ connection.connect(err => {
 });
 
 module.exports.users = users;
-module.exports.instruments = instruments
+module.exports.instruments = instruments;
