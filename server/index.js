@@ -4,6 +4,7 @@ const path = require('path');
 const logger = require('morgan');
 const http = require('http');
 const socketIO = require('socket.io');
+const shortid = require('shortid');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -91,6 +92,8 @@ passport.deserializeUser((id, done) => {
 
 /* Sockets */
 const rooms = {};
+const userInstruments = {};
+const listenerRooms = {};
 
 io.on('connection', socket => {
   console.log('Socket connected with ID: ', socket.id);
@@ -117,14 +120,17 @@ io.on('connection', socket => {
       socket.emit('full', room);
     } else {
       socket.join(room);
-      rooms[room].push({ peerId: socket.id.slice(2), instrument: undefined });
+      rooms[room].push({ peerId: socket.id.slice(2), instrument: 'piano' });
       console.log('room is', rooms[room]);
-      // update creaorjoin open room table
+
+      // update createorjoin open room table
       io.emit('give rooms info', getRoomsInfo(rooms));
+
       // emit message to socket which just joined
-      io.to(socket.id).emit('joined', rooms[room]);
+      io.to(socket.id).emit('joined', JSON.stringify(rooms[room]));
       // emit message to other sockets in room
       socket.broadcast.to(room).emit('new peer');
+
       // socket.emit('give rooms', rooms);
       socket.on('disconnect', () => {
         const socketsInRoom = rooms[room];
@@ -199,6 +205,35 @@ io.on('connection', socket => {
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
+  });
+
+  socket.on('add as listener', room => {
+    listenerRooms[room] = listenerRooms[room] || shortid.generate();
+    socket.join(listenerRooms[room]);
+  });
+
+  socket.on('select instrument', data => {
+    console.log('select instrument', data);
+    const room = rooms[data.roomId];
+    console.log('room is', room);
+    // update instrument of user
+    for (let i = 0; i < room.length; i++) {
+      if (room[i].peerId === data.id) {
+        room[i].instrument = data.instrument;
+        console.log('updated instrument of user', room);
+        const updateRoom = JSON.stringify(room);
+        io.to(listenerRooms[data.roomId]).emit('receive peer info', updateRoom);
+        break;
+      }
+    }
+    // userInstruments[data.id] = data.instrument;
+  });
+
+  socket.on('request peer info', data => {
+    console.log('request peer info', data);
+    console.log('room is', rooms[data.roomId]);
+    console.log('socket id here', socket.id, 'got id', data.socketId);
+    io.to(`/#${data.socketId}`).emit('receive peer info', JSON.stringify(rooms[data.roomId]));
   });
 
   socket.on('instrument select', data => {
