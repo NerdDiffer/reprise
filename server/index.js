@@ -19,7 +19,7 @@ const io = socketIO.listen(server);
 
 /* DB  */
 const users = require('./db/connection').users;
-
+const instruments = require('./db/connection').instruments;
 /* Middleware */
 app.use(cookieParser());
 app.use(logger('dev'));
@@ -47,7 +47,7 @@ const fbConfig = {
 };
 
 passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
-  console.log('this is the profile', profile.id);
+  console.log('this is the profile', profile);
 
   users.findAll({ where: { facebookId: profile.id } })
     .then(user => {
@@ -193,6 +193,26 @@ io.on('connection', socket => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 
+socket.on('newInstCreated', instrument => {
+   console.log('this is a brand new instrument', instrument,instrument.A);
+
+    instruments.create({
+      userName: instrument.userName,
+      instrumentName: instrument.name,
+      A: JSON.stringify(instrument.A),
+      S: JSON.stringify(instrument.S),
+      D: JSON.stringify(instrument.D),
+      F: JSON.stringify(instrument.F),
+      G: JSON.stringify(instrument.G),
+      H: JSON.stringify(instrument.H),
+      J: JSON.stringify(instrument.J),
+      K: JSON.stringify(instrument.K),
+      L: JSON.stringify(instrument.L)
+    }).then(instrumentEntry => {
+      console.log(instrumentEntry.dataValues, ' got entered');
+    });
+  });
+
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
@@ -239,32 +259,48 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  console.log('req.body.pass', req.body.pass);
 
-  users.findAll({ where: { userName: req.body.user } })
-    .then(person => {
-      console.log(person[0].dataValues.salt, 'person salt');
+console.log('req.body.pass', req.body.pass);
+
+  users.findAll({
+    where: {
+      userName: req.body.user,
+    }
+  }).then(person => {
+    if (person[0]===undefined) {
+      console.log('line 261 case caught');
+      console.log('BadLogin');
+      console.log('req.session', req.session);
+      res.send("");
+    } else {
+      console.log(person[0], 'Person[0]!!!');
       const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
-      console.log('this is the hash', hash);
-
       users.findAll({
         where: {
           userName: req.body.user,
           password: hash
         }
-      })
-        .then(user => {
-          if (user.length > 0) {
-            console.log("succ logged in");
-            req.session.userName = req.body.user;
-            res.send("Succ");
-          } else {
-            console.log('BadLogin');
-            console.log('req.session', req.session);
-            res.send("BadLogin");
-          }
-        });
-    });
+      }).then(user => {
+        if (user.length > 0) {
+          instruments.findAll({ where: { userName: req.body.user } }).then(
+            userInstruments => {
+              return userInstruments.map(a => a.dataValues);
+            }).then(userInstrumentsList => {
+              console.log('line 281 case caught');
+              console.log("succ logged in", userInstrumentsList);
+              req.session.userName = req.body.user;
+              res.send(userInstrumentsList);
+            });
+        } else {
+          console.log('line 290 case caught');
+          console.log('BadLogin');
+          console.log('req.session', req.session);
+          res.send("");
+        }
+      });
+    }
+  });
+
 });
 
 app.post('/signup', (req, res) => {
@@ -292,15 +328,7 @@ app.post('/signup', (req, res) => {
   });
 });
 
-app.get('/MakeInstrument', (req, res) => {
-  console.log("youre trying to access make Instrument!!!");
 
-  if (!req.session.userName&&!req.session.passport) {
-    res.redirect("/login");
-  } else {
-    console.log("Do nothing");
-  }
-});
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
@@ -310,6 +338,35 @@ app.get('/auth/facebook/callback',
     failureRedirect: '/login'
   })
 );
+
+app.get("/userLoggedInToMakeInst", (req, res) => {
+
+  const person=req.session.userName||req.session.passport;
+
+  console.log(person, 'person!!!');
+
+if (req.session.passport){
+  // users.findAll({ where: { id: person.user } }).then(
+instruments.findAll({ where: { id: person.user } }).then(
+      userInstruments => {
+        return userInstruments.map(a => a.dataValues);
+      }).then(userInstrumentsList => {
+    console.log(person, userInstrumentsList, 'userInsts');
+    res.send([person, userInstrumentsList]);
+  });
+
+} else {
+  instruments.findAll({ where: { userName: person } }).then(
+      userInstruments => {
+        return userInstruments.map(a => a.dataValues);
+      }).then(userInstrumentsList => {
+    console.log(person, userInstrumentsList, 'userInsts');
+    res.send([person, userInstrumentsList]);
+  });
+}
+});
+
+
 
 app.get("/fbLoggedIn?", (req, res) => {
   console.log(req.session.passport);
