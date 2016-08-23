@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 
 const users = require('./models').users;
+const instruments = require('./models').instruments;
 
 const connection= mysql.createConnection({
   host: 'localhost',
@@ -19,3 +20,4 @@ connection.connect(err => {
 });
 
 module.exports.users = users;
+module.exports.instruments = instruments
