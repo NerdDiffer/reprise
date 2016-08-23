@@ -20,6 +20,7 @@ const io = socketIO.listen(server);
 
 /* DB  */
 const users = require('./db/connection').users;
+const PrivateRooms = require('./db/connection').PrivateRooms;
 
 /* Middleware */
 app.use(cookieParser());
@@ -251,31 +252,34 @@ app.get('/logout', (req, res) => {
 
 app.post('/login', (req, res) => {
   console.log('req.body.pass', req.body.pass);
+  users.findAll({
+    where: {
+      userName: req.body.user,
+    }
+  })
+  .then(person => {
+    console.log(person[0].dataValues.salt, 'person salt');
+    const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
+    console.log('this is the hash', hash);
 
-  users.findAll({ where: { userName: req.body.user } })
-    .then(person => {
-      console.log(person[0].dataValues.salt, 'person salt');
-      const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
-      console.log('this is the hash', hash);
-
-      users.findAll({
-        where: {
-          userName: req.body.user,
-          password: hash
-        }
-      })
-        .then(user => {
-          if (user.length > 0) {
-            console.log("succ logged in");
-            req.session.userName = req.body.user;
-            res.send("Succ");
-          } else {
-            console.log('BadLogin');
-            console.log('req.session', req.session);
-            res.send("BadLogin");
-          }
-        });
+    users.findAll({
+      where: {
+        userName: req.body.user,
+        password: hash
+      }
+    })
+    .then(user => {
+      if (user.length > 0) {
+        console.log("succ logged in");
+        req.session.userName = req.body.user;
+        res.send("Succ");
+      } else {
+        console.log('BadLogin');
+        console.log('req.session', req.session);
+        res.send("BadLogin");
+      }
     });
+  });
 });
 
 app.post('/signup', (req, res) => {
@@ -331,6 +335,30 @@ app.get('*', (req, res) => {
   console.log('req.session', req.session);
   const pathToIndex = path.join(pathToStaticDir, 'index.html');
   res.status(200).sendFile(pathToIndex);
+});
+
+app.post('/makeprivateroom', (req, res) => {
+  if (!req.session.userName && !req.session.passport) {
+    res.send('you must be logged in');
+    console.log('User must be logged in to make private room');
+  } else {
+    console.log('making private rooms');
+    users.findOne({
+      where: {
+        userName: req.session.userName,
+      }
+    })
+    .then((user) => {
+      const userId = user.id;
+      return PrivateRooms.create({
+        url: req.body.roomName,
+        userId,
+      });
+    })
+    .then(() => {
+      res.sendStatus(200);
+    });
+  }
 });
 
 /* Kick off server */

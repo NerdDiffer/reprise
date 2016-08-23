@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 
 const users = require('./models').users;
+const PrivateRooms = require('./models').PrivateRooms;
 
 const connection= mysql.createConnection({
   host: 'localhost',
@@ -18,4 +19,7 @@ connection.connect(err => {
   console.log('Connection established');
 });
 
-module.exports.users = users;
+module.exports = {
+  users,
+  PrivateRooms,
+};
