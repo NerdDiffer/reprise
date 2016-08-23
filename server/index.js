@@ -48,7 +48,6 @@ const fbConfig = {
 
 passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
   console.log('this is the profile', profile);
-
   users.findAll({ where: { facebookId: profile.id } })
     .then(user => {
       if (user.length > 0) {
@@ -80,7 +79,6 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   console.log('this is id in deserialize', id);
-
   users.findAll({ where: { id } })
     .then(found => {
       const values = found[0].dataValues;
@@ -193,9 +191,8 @@ io.on('connection', socket => {
     io.to(`/#${info.sendTo}`).emit('peer info', info);
   });
 
-socket.on('newInstCreated', instrument => {
-   console.log('this is a brand new instrument', instrument,instrument.A);
-
+  socket.on('newInstCreated', instrument => {
+    console.log('this is a brand new instrument', instrument, instrument.A);
     instruments.create({
       userName: instrument.userName,
       instrumentName: instrument.name,
@@ -247,21 +244,16 @@ socket.on('newInstCreated', instrument => {
 /* Routes */
 app.get('/logout', (req, res) => {
   console.log('mysession', req.session);
-
   if (req.session.userName) {
     delete req.session.userName;
   }
-
   req.logout();
-
   console.log('mysession after logout', req.session);
   res.sendStatus(200);
 });
 
 app.post('/login', (req, res) => {
-
-console.log('req.body.pass', req.body.pass);
-
+  console.log('req.body.pass', req.body.pass);
   users.findAll({
     where: {
       userName: req.body.user,
@@ -282,7 +274,11 @@ console.log('req.body.pass', req.body.pass);
         }
       }).then(user => {
         if (user.length > 0) {
-          instruments.findAll({ where: { userName: req.body.user } }).then(
+          instruments.findAll({
+            where: {
+              userName: req.body.user
+            }
+          }).then(
             userInstruments => {
               return userInstruments.map(a => a.dataValues);
             }).then(userInstrumentsList => {
@@ -300,7 +296,6 @@ console.log('req.body.pass', req.body.pass);
       });
     }
   });
-
 });
 
 app.post('/signup', (req, res) => {
@@ -328,8 +323,6 @@ app.post('/signup', (req, res) => {
   });
 });
 
-
-
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
@@ -345,28 +338,25 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
 
   console.log(person, 'person!!!');
 
-if (req.session.passport){
-  // users.findAll({ where: { id: person.user } }).then(
-instruments.findAll({ where: { id: person.user } }).then(
-      userInstruments => {
-        return userInstruments.map(a => a.dataValues);
-      }).then(userInstrumentsList => {
-    console.log(person, userInstrumentsList, 'userInsts');
-    res.send([person, userInstrumentsList]);
-  });
-
-} else {
-  instruments.findAll({ where: { userName: person } }).then(
-      userInstruments => {
-        return userInstruments.map(a => a.dataValues);
-      }).then(userInstrumentsList => {
-    console.log(person, userInstrumentsList, 'userInsts');
-    res.send([person, userInstrumentsList]);
-  });
-}
+  if (req.session.passport) {
+    // users.findAll({ where: { id: person.user } }).then(
+    instruments.findAll({ where: { id: person.user } }).then(
+        userInstruments => {
+          return userInstruments.map(a => a.dataValues);
+        }).then(userInstrumentsList => {
+          console.log(person, userInstrumentsList, 'userInsts');
+          res.send([person, userInstrumentsList]);
+        });
+  } else {
+    instruments.findAll({ where: { userName: person } }).then(
+        userInstruments => {
+          return userInstruments.map(a => a.dataValues);
+        }).then(userInstrumentsList => {
+          console.log(person, userInstrumentsList, 'userInsts');
+          res.send([person, userInstrumentsList]);
+        });
+  }
 });
-
-
 
 app.get("/fbLoggedIn?", (req, res) => {
   console.log(req.session.passport);
