@@ -1,11 +1,11 @@
 const mysql = require('mysql');
 //
 const users = require('./models').users;
-<<<<<<< HEAD
+
 const instruments = require('./models').instruments;
-=======
+
 const PrivateRooms = require('./models').PrivateRooms;
->>>>>>> master
+
 
 const connection= mysql.createConnection({
   host: 'localhost',
@@ -23,12 +23,9 @@ connection.connect(err => {
   console.log('Connection established');
 });
 
-<<<<<<< HEAD
-module.exports.users = users;
-module.exports.instruments = instruments;
-=======
+
 module.exports = {
   users,
   PrivateRooms,
 };
->>>>>>> master
+
