@@ -19,6 +19,7 @@ const io = socketIO.listen(server);
 
 /* DB  */
 const users = require('./db/connection').users;
+const PrivateRooms = require('./db/connection').PrivateRooms;
 
 /* Middleware */
 app.use(cookieParser());
@@ -325,16 +326,43 @@ app.get('*', (req, res) => {
   res.status(200).sendFile(pathToIndex);
 });
 
-/* Kick off server */
 app.post('/makeprivateroom', (req, res) => {
-  if (!req.session.userName&&!req.session.passport) {
+  if (!req.session.userName && !req.session.passport) {
     res.send('you must be logged in');
+    console.log('User must be logged in to make private room');
   } else {
-    res.send(200);
+    console.log('making private rooms');
+    users.findOne({
+      where: {
+        userName: req.session.userName,
+      }
+    })
+    .then((user) => {
+      const userId = user.id;
+      return PrivateRooms.create({
+        url: req.body.roomName,
+        userId,
+      });
+    })
+    .then(() => {
+      res.sendStatus(200);
+    });
   }
 });
 
-/* Initialize */
+// users.findOne({
+//   where: {
+//     userName: 'aaaaaaa'
+//   }
+// })
+// .then((user) => {
+//   console.log(user.id);
+// })
+// .then(() => {
+//   console.log('TESTTESTTEST');
+// });
+
+/* Kick off server */
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
