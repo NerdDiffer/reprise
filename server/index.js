@@ -170,6 +170,9 @@ io.on('connection', socket => {
       socket.broadcast.to(data.room).emit('remove connection', data.id);
       // update creaorjoin open room table
       io.emit('give rooms info', getRoomsInfo(rooms));
+      // disconnect socket, client will create new socket when it starts
+      // peer connection process again
+      socket.disconnect(0);
     }
   });
 
