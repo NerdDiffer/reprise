@@ -350,18 +350,6 @@ app.post('/makeprivateroom', (req, res) => {
   }
 });
 
-// users.findOne({
-//   where: {
-//     userName: 'aaaaaaa'
-//   }
-// })
-// .then((user) => {
-//   console.log(user.id);
-// })
-// .then(() => {
-//   console.log('TESTTESTTEST');
-// });
-
 /* Kick off server */
 const port = process.env.PORT || 3000;
 
