@@ -11,12 +11,15 @@ const expressSession=require('express-session');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 require("dotenv").config();
+
 /* Init */
 const app = express();
 const server = http.createServer(app);
 const io = socketIO.listen(server);
+
 /* DB  */
 const users = require('./db/connection').users;
+
 /* Middleware */
 app.use(cookieParser());
 app.use(logger('dev'));
@@ -26,7 +29,9 @@ app.use(bodyParser.json());
 const pathToStaticDir = path.resolve(__dirname, '..', 'client/public');
 
 app.use(express.static(pathToStaticDir));
-app.use(express.static(pathToStaticDir, { redirect : false }));
+app.use(express.static(pathToStaticDir, { redirect: false }));
+
+/* Auth */
 app.use(expressSession({
   secret: process.env.sessions_secret,
   resave: true,
@@ -43,27 +48,27 @@ const fbConfig = {
 
 passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
   console.log('this is the profile', profile.id);
-  users.findAll({ where: { facebookId: profile.id }
-  }).then(user => {
-    if (user.length > 0) {
-      console.log('user already exists', user[0]);
-      return done(null, user);
-    } else {
-      users.create({
-        userName: ` ${profile.name.givenName} ${profile.name.familyName}`,
-        password: "N/A",
-        facebookId: profile.id,
-        token: accessToken,
-      }).then(entry => {
-        console.log('this is entry for a newly added user', entry.dataValues.id);
-        console.log(entry.dataValues, ' got entered', entry);
-        return done(null, entry.dataValues.id);
-      });
-    }
-  });
+
+  users.findAll({ where: { facebookId: profile.id } })
+    .then(user => {
+      if (user.length > 0) {
+        console.log('user already exists', user[0]);
+        return done(null, user);
+      } else {
+        return users.create({
+          userName: `${profile.name.givenName} ${profile.name.familyName}`,
+          password: "N/A",
+          facebookId: profile.id,
+          token: accessToken,
+        }).then(entry => {
+          console.log('this is entry for a newly added user', entry.dataValues.id);
+          console.log(entry.dataValues, ' got entered', entry);
+          return done(null, entry.dataValues.id);
+        });
+      }
+    });
 }
 ));
-
 
 // serialize and deserialize
 passport.serializeUser((user, done) => {
@@ -75,13 +80,16 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   console.log('this is id in deserialize', id);
-  users.findAll({ where: { id: id } }).then(found => {
-    console.log('im trying to des this user', found[0].dataValues);
-    done(null, id);
-  });
-});
-/* Sockets */
 
+  users.findAll({ where: { id } })
+    .then(found => {
+      const values = found[0].dataValues;
+      console.log('Trying to "deserialize" this user', values);
+      done(null, id);
+    });
+});
+
+/* Sockets */
 const rooms = {};
 
 io.on('connection', socket => {
@@ -219,45 +227,45 @@ io.on('connection', socket => {
 /* Routes */
 app.get('/logout', (req, res) => {
   console.log('mysession', req.session);
-  if (req.session.userName){
+
+  if (req.session.userName) {
     delete req.session.userName;
   }
+
   req.logout();
+
   console.log('mysession after logout', req.session);
   res.sendStatus(200);
 });
 
 app.post('/login', (req, res) => {
-console.log('req.body.pass',req.body.pass);
+  console.log('req.body.pass', req.body.pass);
 
-  users.findAll({
-    where: {
-      userName: req.body.user,
-    }
-  }).then(person => {
-    console.log(person[0].dataValues.salt,'person salt');
- const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt)
- console.log('this is the hash',hash)
+  users.findAll({ where: { userName: req.body.user } })
+    .then(person => {
+      console.log(person[0].dataValues.salt, 'person salt');
+      const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
+      console.log('this is the hash', hash);
 
-users.findAll({
-    where: {
-      userName: req.body.user,
-      password:hash
-    }
-  }).then(user => {
-    if (user.length > 0) {
-      console.log("succ logged in");
-      req.session.userName = req.body.user;
-      res.send("Succ");
-    } else {
-      console.log('BadLogin');
-      console.log('req.session', req.session);
-      res.send("BadLogin");
-    }
-  })
- });
+      users.findAll({
+        where: {
+          userName: req.body.user,
+          password: hash
+        }
+      })
+        .then(user => {
+          if (user.length > 0) {
+            console.log("succ logged in");
+            req.session.userName = req.body.user;
+            res.send("Succ");
+          } else {
+            console.log('BadLogin');
+            console.log('req.session', req.session);
+            res.send("BadLogin");
+          }
+        });
+    });
 });
-
 
 app.post('/signup', (req, res) => {
   users.findAll({
@@ -274,7 +282,7 @@ app.post('/signup', (req, res) => {
       users.create({
         userName: req.body.user,
         password: hash,
-        salt: salt,
+        salt,
       }).then(entry => {
         console.log(entry.dataValues, ' got entered');
         req.session.userName = req.body.user;
@@ -285,15 +293,14 @@ app.post('/signup', (req, res) => {
 });
 
 app.get('/MakeInstrument', (req, res) => {
-  console.log("youre trying to access make Instrument!!!")
- if (!req.session.userName&&!req.session.passport){
-  res.redirect("/login");
+  console.log("youre trying to access make Instrument!!!");
+
+  if (!req.session.userName&&!req.session.passport) {
+    res.redirect("/login");
   } else {
-    console.log("Do nothing")
+    console.log("Do nothing");
   }
 });
-
-
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
@@ -301,22 +308,21 @@ app.get('/auth/facebook/callback',
   passport.authenticate('facebook', {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login'
-  }));
-
+  })
+);
 
 app.get("/fbLoggedIn?", (req, res) => {
   console.log(req.session.passport);
-  res.send(req.session.passport?"true":"false")
+  res.send(req.session.passport ? "true" : "false");
 });
 
 app.get('*', (req, res) => {
-  console.log('req.session',req.session);
+  console.log('req.session', req.session);
   const pathToIndex = path.join(pathToStaticDir, 'index.html');
   res.status(200).sendFile(pathToIndex);
 });
 
-/* Initialize */
-
+/* Kick off server */
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
