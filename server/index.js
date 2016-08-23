@@ -153,6 +153,9 @@ io.on('connection', socket => {
         }
         // update creaorjoin open room table
         io.emit('give rooms info', getRoomsInfo(rooms));
+
+        // give updated list of peer info
+        io.to(listenerRooms[room]).emit('receive peer info', JSON.stringify(rooms[room]));
       });
     }
   });
@@ -176,6 +179,9 @@ io.on('connection', socket => {
       socket.broadcast.to(data.room).emit('remove connection', data.id);
       // update creaorjoin open room table
       io.emit('give rooms info', getRoomsInfo(rooms));
+
+      // give updated list of peer info
+      io.to(listenerRooms[data.room]).emit('receive peer info', JSON.stringify(room));
       // disconnect socket, client will create new socket when it starts
       // peer connection process again
       socket.disconnect(0);
