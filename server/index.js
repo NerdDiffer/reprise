@@ -4,6 +4,7 @@ const path = require('path');
 const logger = require('morgan');
 const http = require('http');
 const socketIO = require('socket.io');
+const shortid = require('shortid');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -20,6 +21,8 @@ const io = socketIO.listen(server);
 /* DB  */
 const users = require('./db/connection').users;
 const instruments = require('./db/connection').instruments;
+const PrivateRooms = require('./db/connection').PrivateRooms;
+
 /* Middleware */
 app.use(cookieParser());
 app.use(logger('dev'));
@@ -88,7 +91,10 @@ passport.deserializeUser((id, done) => {
 });
 
 /* Sockets */
+// rooms for peer connection sockets
 const rooms = {};
+// map actual rooms to another room which contains peer info sockets
+const listenerRooms = {};
 
 io.on('connection', socket => {
   console.log('Socket connected with ID: ', socket.id);
@@ -101,73 +107,74 @@ io.on('connection', socket => {
     } else {
       rooms[roomId] = [];
       io.to(socket.id).emit('room created', roomId);
-      // socket.emit('give rooms', rooms);
     }
   });
 
-  socket.on('join', room => {
-    console.log(socket.id, 'joining', room);
+  socket.on('join', roomId => {
+    console.log(socket.id, 'joining', roomId);
     // does room exist?
-    if (!rooms[room]) {
+    if (!rooms[roomId]) {
       io.to(socket.id).emit('invalid room');
     // is room full?
-    } else if (rooms[room].length >= 4) {
-      socket.emit('full', room);
+    } else if (rooms[roomId].length >= 4) {
+      socket.emit('full', roomId);
     } else {
-      socket.join(room);
-      rooms[room].push({ peerId: socket.id.slice(2), instrument: undefined });
-      console.log('room is', rooms[room]);
-      // update creaorjoin open room table
+      socket.join(roomId);
+      rooms[roomId].push({ peerId: socket.id.slice(2), instrument: 'piano' });
+      console.log('room is', rooms[roomId]);
+
+      // update open rooms table
       io.emit('give rooms info', getRoomsInfo(rooms));
+
       // emit message to socket which just joined
-      io.to(socket.id).emit('joined', rooms[room]);
+      io.to(socket.id).emit('joined', JSON.stringify(rooms[roomId]));
       // emit message to other sockets in room
-      socket.broadcast.to(room).emit('new peer');
-      // socket.emit('give rooms', rooms);
+      socket.broadcast.to(roomId).emit('new peer');
+
       socket.on('disconnect', () => {
-        const socketsInRoom = rooms[room];
+        const socketsInRoom = rooms[roomId];
         const id = socket.id.slice(2);
-        let inRoom = false;
-        let index;
         // check to make sure peer is in room and get index of peer
         for (let i = 0; i < socketsInRoom.length; i++) {
           if (socketsInRoom[i].peerId === id) {
-            inRoom = true;
-            index = i;
+            socketsInRoom.splice(i, 1);
+            socket.leave(roomId);
+            socket.broadcast.to(roomId).emit('remove connection', id);
+
+            // update open rooms table
+            io.emit('give rooms info', getRoomsInfo(rooms));
+
+            // give updated list of peer info
+            io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
             break;
           }
         }
-        if (inRoom) {
-          console.log('disconnect', id);
-          socketsInRoom.splice(index, 1);
-          socket.leave(room);
-          socket.broadcast.to(room).emit('remove connection', id);
-        }
-        // update creaorjoin open room table
-        io.emit('give rooms info', getRoomsInfo(rooms));
       });
     }
   });
 
   socket.on('exit room', data => {
-    const room = rooms[data.room];
+    const room = rooms[data.roomId];
     if (room !== undefined) {
-      let index;
       // check to make sure peer is in room and get index of peer
       for (let i = 0; i < room.length; i++) {
         if (room[i].peerId === data.id) {
-          index = i;
+          room.splice(i, 1);
+          socket.leave(data.roomId);
+          console.log(rooms[data.roomId]);
+          socket.broadcast.to(data.roomId).emit('remove connection', data.id);
+
+          // update open rooms table
+          io.emit('give rooms info', getRoomsInfo(rooms));
+
+          // give updated list of peer info
+          io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
+          // disconnect socket, client will create new socket when it starts
+          // peer connection process again
+          socket.disconnect(0);
           break;
         }
       }
-      console.log('exit room', data);
-      room.splice(index, 1);
-      socket.leave(data.room);
-      // socket.broadcast.to(`/#${data.id}`).emit('close');
-      console.log(rooms[data.room]);
-      socket.broadcast.to(data.room).emit('remove connection', data.id);
-      // update creaorjoin open room table
-      io.emit('give rooms info', getRoomsInfo(rooms));
     }
   });
 
@@ -215,16 +222,34 @@ io.on('connection', socket => {
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
   });
 
-  socket.on('instrument select', data => {
+  // add this socket as listener to a room mapped from client room
+  // need to do this because using a different socket from one used
+  // to establish rtc connections
+  socket.on('add as listener', room => {
+    listenerRooms[room] = listenerRooms[room] || shortid.generate();
+    socket.join(listenerRooms[room]);
+  });
+
+  socket.on('select instrument', data => {
     const room = rooms[data.roomId];
+    // update instrument of user
     for (let i = 0; i < room.length; i++) {
-      if (room[i].peerId === data.peerId) {
+      if (room[i].peerId === data.id) {
         room[i].instrument = data.instrument;
+        const updateRoom = JSON.stringify(room);
+
+        // send out updated info of user instruments
+        io.to(listenerRooms[data.roomId]).emit('receive peer info', updateRoom);
+
+        // update open rooms table
+        io.emit('give rooms info', getRoomsInfo(rooms));
         break;
       }
     }
-    // update creaorjoin open room table
-    io.emit('give rooms info', getRoomsInfo(rooms));
+  });
+
+  socket.on('request peer info', data => {
+    io.to(`/#${data.socketId}`).emit('receive peer info', JSON.stringify(rooms[data.roomId]));
   });
 
   function getRoomsInfo(roomObj) {
@@ -258,38 +283,29 @@ app.post('/login', (req, res) => {
     where: {
       userName: req.body.user,
     }
-  }).then(person => {
-    if (person[0]===undefined) {
-      console.log('BadLogin');
-      res.send("");
-    } else {
-      console.log(person[0], 'Person[0]!!!');
-      const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
-      users.findAll({
-        where: {
-          userName: req.body.user,
-          password: hash
-        }
-      }).then(user => {
-        if (user.length > 0) {
-          instruments.findAll({
-            where: {
-              userName: req.body.user
-            }
-          }).then(
-            userInstruments => (
-               userInstruments.map(a => a.dataValues)
-            )).then(userInstrumentsList => {
-              console.log("succ logged in", userInstrumentsList);
-              req.session.userName = req.body.user;
-              res.send(userInstrumentsList);
-            });
-        } else {
-          console.log('BadLogin');
-          res.send("");
-        }
-      });
-    }
+  })
+  .then(person => {
+    console.log(person[0].dataValues.salt, 'person salt');
+    const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
+    console.log('this is the hash', hash);
+
+    users.findAll({
+      where: {
+        userName: req.body.user,
+        password: hash
+      }
+    })
+    .then(user => {
+      if (user.length > 0) {
+        console.log("succ logged in");
+        req.session.userName = req.body.user;
+        res.send("Succ");
+      } else {
+        console.log('BadLogin');
+        console.log('req.session', req.session);
+        res.send("BadLogin");
+      }
+    });
   });
 });
 
@@ -360,6 +376,30 @@ app.get('*', (req, res) => {
   console.log('req.session', req.session);
   const pathToIndex = path.join(pathToStaticDir, 'index.html');
   res.status(200).sendFile(pathToIndex);
+});
+
+app.post('/makeprivateroom', (req, res) => {
+  if (!req.session.userName && !req.session.passport) {
+    res.send('you must be logged in');
+    console.log('User must be logged in to make private room');
+  } else {
+    console.log('making private rooms');
+    users.findOne({
+      where: {
+        userName: req.session.userName,
+      }
+    })
+    .then((user) => {
+      const userId = user.id;
+      return PrivateRooms.create({
+        url: req.body.roomName,
+        userId,
+      });
+    })
+    .then(() => {
+      res.sendStatus(200);
+    });
+  }
 });
 
 /* Kick off server */
