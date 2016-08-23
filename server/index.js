@@ -25,7 +25,6 @@ app.use(bodyParser.json());
 
 const pathToStaticDir = path.resolve(__dirname, '..', 'client/public');
 
-
 app.use(express.static(pathToStaticDir));
 app.use(express.static(pathToStaticDir, { redirect : false }));
 app.use(expressSession({
@@ -39,7 +38,7 @@ app.use(passport.session());
 const fbConfig = {
   clientID: process.env.client_Id,
   clientSecret: process.env.client_Secret,
-  callbackURL: "http://localhost:3000/auth/facebook/callback"
+  callbackURL: process.env.callbackURL
 };
 
 passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
