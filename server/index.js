@@ -91,8 +91,9 @@ passport.deserializeUser((id, done) => {
 });
 
 /* Sockets */
+// rooms for peer connection sockets
 const rooms = {};
-const userInstruments = {};
+// map actual rooms to another room which contains peer info sockets
 const listenerRooms = {};
 
 io.on('connection', socket => {
@@ -106,85 +107,74 @@ io.on('connection', socket => {
     } else {
       rooms[roomId] = [];
       io.to(socket.id).emit('room created', roomId);
-      // socket.emit('give rooms', rooms);
     }
   });
 
-  socket.on('join', room => {
-    console.log(socket.id, 'joining', room);
+  socket.on('join', roomId => {
+    console.log(socket.id, 'joining', roomId);
     // does room exist?
-    if (!rooms[room]) {
+    if (!rooms[roomId]) {
       io.to(socket.id).emit('invalid room');
     // is room full?
-    } else if (rooms[room].length >= 4) {
-      socket.emit('full', room);
+    } else if (rooms[roomId].length >= 4) {
+      socket.emit('full', roomId);
     } else {
-      socket.join(room);
-      rooms[room].push({ peerId: socket.id.slice(2), instrument: 'piano' });
-      console.log('room is', rooms[room]);
+      socket.join(roomId);
+      rooms[roomId].push({ peerId: socket.id.slice(2), instrument: 'piano' });
+      console.log('room is', rooms[roomId]);
 
-      // update createorjoin open room table
+      // update open rooms table
       io.emit('give rooms info', getRoomsInfo(rooms));
 
       // emit message to socket which just joined
-      io.to(socket.id).emit('joined', JSON.stringify(rooms[room]));
+      io.to(socket.id).emit('joined', JSON.stringify(rooms[roomId]));
       // emit message to other sockets in room
-      socket.broadcast.to(room).emit('new peer');
+      socket.broadcast.to(roomId).emit('new peer');
 
-      // socket.emit('give rooms', rooms);
       socket.on('disconnect', () => {
-        const socketsInRoom = rooms[room];
+        const socketsInRoom = rooms[roomId];
         const id = socket.id.slice(2);
-        let inRoom = false;
-        let index;
         // check to make sure peer is in room and get index of peer
         for (let i = 0; i < socketsInRoom.length; i++) {
           if (socketsInRoom[i].peerId === id) {
-            inRoom = true;
-            index = i;
+            socketsInRoom.splice(i, 1);
+            socket.leave(roomId);
+            socket.broadcast.to(roomId).emit('remove connection', id);
+
+            // update open rooms table
+            io.emit('give rooms info', getRoomsInfo(rooms));
+
+            // give updated list of peer info
+            io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
             break;
           }
         }
-        if (inRoom) {
-          console.log('disconnect', id);
-          socketsInRoom.splice(index, 1);
-          socket.leave(room);
-          socket.broadcast.to(room).emit('remove connection', id);
-        }
-        // update creaorjoin open room table
-        io.emit('give rooms info', getRoomsInfo(rooms));
-
-        // give updated list of peer info
-        io.to(listenerRooms[room]).emit('receive peer info', JSON.stringify(rooms[room]));
       });
     }
   });
 
   socket.on('exit room', data => {
-    const room = rooms[data.room];
+    const room = rooms[data.roomId];
     if (room !== undefined) {
-      let index;
       // check to make sure peer is in room and get index of peer
       for (let i = 0; i < room.length; i++) {
         if (room[i].peerId === data.id) {
-          index = i;
+          room.splice(i, 1);
+          socket.leave(data.roomId);
+          console.log(rooms[data.roomId]);
+          socket.broadcast.to(data.roomId).emit('remove connection', data.id);
+
+          // update open rooms table
+          io.emit('give rooms info', getRoomsInfo(rooms));
+
+          // give updated list of peer info
+          io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
+          // disconnect socket, client will create new socket when it starts
+          // peer connection process again
+          socket.disconnect(0);
           break;
         }
       }
-      console.log('exit room', data);
-      room.splice(index, 1);
-      socket.leave(data.room);
-      // socket.broadcast.to(`/#${data.id}`).emit('close');
-      console.log(rooms[data.room]);
-      socket.broadcast.to(data.room).emit('remove connection', data.id);
-      // update creaorjoin open room table
-      io.emit('give rooms info', getRoomsInfo(rooms));
-
-      // give updated list of peer info
-      io.to(listenerRooms[data.room]).emit('receive peer info', JSON.stringify(room));
-      // disconnect socket, client will create new socket when it starts
-      // peer connection process again
-      socket.disconnect(0);
     }
   });
 
@@ -196,62 +186,39 @@ io.on('connection', socket => {
     io.to(`/#${answer.to}`).emit('answer', answer);
   });
 
-  socket.on('peer info', peerInfo => {
-    socket.to(peerInfo.roomId).broadcast.emit('peer info', peerInfo);
-  });
-
-  socket.on('ask for peer info', info => {
-    socket.to(info.roomId).broadcast.emit('ask for peer info', info);
-  });
-
-  socket.on('give peer info', info => {
-    io.to(`/#${info.sendTo}`).emit('peer info', info);
-  });
-
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
   });
 
+  // add this socket as listener to a room mapped from client room
+  // need to do this because using a different socket from one used
+  // to establish rtc connections
   socket.on('add as listener', room => {
     listenerRooms[room] = listenerRooms[room] || shortid.generate();
     socket.join(listenerRooms[room]);
   });
 
   socket.on('select instrument', data => {
-    console.log('select instrument', data);
     const room = rooms[data.roomId];
-    console.log('room is', room);
     // update instrument of user
     for (let i = 0; i < room.length; i++) {
       if (room[i].peerId === data.id) {
         room[i].instrument = data.instrument;
-        console.log('updated instrument of user', room);
         const updateRoom = JSON.stringify(room);
+
+        // send out updated info of user instruments
         io.to(listenerRooms[data.roomId]).emit('receive peer info', updateRoom);
+
+        // update open rooms table
+        io.emit('give rooms info', getRoomsInfo(rooms));
         break;
       }
     }
-    // userInstruments[data.id] = data.instrument;
   });
 
   socket.on('request peer info', data => {
-    console.log('request peer info', data);
-    console.log('room is', rooms[data.roomId]);
-    console.log('socket id here', socket.id, 'got id', data.socketId);
     io.to(`/#${data.socketId}`).emit('receive peer info', JSON.stringify(rooms[data.roomId]));
-  });
-
-  socket.on('instrument select', data => {
-    const room = rooms[data.roomId];
-    for (let i = 0; i < room.length; i++) {
-      if (room[i].peerId === data.peerId) {
-        room[i].instrument = data.instrument;
-        break;
-      }
-    }
-    // update creaorjoin open room table
-    io.emit('give rooms info', getRoomsInfo(rooms));
   });
 
   function getRoomsInfo(roomObj) {
