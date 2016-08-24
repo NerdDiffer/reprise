@@ -403,9 +403,9 @@ app.get("/fbLoggedIn", (req, res) => {
         id: req.session.passport.user
       }
     }).then(
-      people => {
+      people => {console.log('people on 406', people);
 
-        const person = people[0].dataValues.userName;
+        const person = people.dataValues.userName;
         console.log('person!!!', person);
         instruments.findAll({
           where: {
