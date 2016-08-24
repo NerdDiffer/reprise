@@ -19,9 +19,11 @@ const server = http.createServer(app);
 const io = socketIO.listen(server);
 
 /* DB  */
-const users = require('./db/connection').users;
-const instruments = require('./db/connection').instruments;
-const PrivateRooms = require('./db/connection').PrivateRooms;
+
+const users = require('./db/models').users;
+const instruments = require('./db/models').instruments;
+const PrivateRooms = require('./db/models').PrivateRooms;
+
 
 /* Middleware */
 app.use(cookieParser());
