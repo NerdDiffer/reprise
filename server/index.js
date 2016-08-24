@@ -375,7 +375,8 @@ app.get("/getUserInfo", (req, res) => {
 
   if (req.session.passport) {
     users.findOne({ where: { id: person.user } }).then(fbUser => {
-      const fbUserName= fbUser[0].dataValues.userName;
+      console.log('uh oh ',fbUser);
+      const fbUserName= fbUser.dataValues.userName;
       instruments.findAll({ where: { userName: fbUserName } }).then(
         userInstruments => (
            userInstruments.map(a => a.dataValues)
