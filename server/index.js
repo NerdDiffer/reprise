@@ -350,9 +350,9 @@ app.get("/getUserInfo", (req, res) => {
   console.log(person, 'person!!!');
 
   if (req.session.passport) {
-    users.findAll({ where: { id: person.user } }).then(peep => {
-      const fbUser= peep[0].dataValues.userName;
-      instruments.findAll({ where: { userName: fbUser } }).then(
+    users.findOne({ where: { id: person.user } }).then(fbUser => {
+      const fbUserName= fbUser[0].dataValues.userName;
+      instruments.findAll({ where: { userName: fbUserName } }).then(
         userInstruments => (
            userInstruments.map(a => a.dataValues)
         )).then(userInstrumentsList => {
