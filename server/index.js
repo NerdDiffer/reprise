@@ -384,12 +384,6 @@ app.get("/fbLoggedIn?", (req, res) => {
   res.send(req.session.passport ? "true" : "false");
 });
 
-app.get('*', (req, res) => {
-  console.log('req.session', req.session);
-  const pathToIndex = path.join(pathToStaticDir, 'index.html');
-  res.status(200).sendFile(pathToIndex);
-});
-
 app.post('/makeprivateroom', (req, res) => {
   if (!req.session.userName && !req.session.passport) {
     res.send('you must be logged in');
@@ -412,6 +406,32 @@ app.post('/makeprivateroom', (req, res) => {
       res.sendStatus(200);
     });
   }
+});
+
+app.get('/getprivaterooms', (req, res) => {
+  users.findOne({
+    where: {
+      userName: req.session.userName,
+    }
+  })
+  .then(user => {
+    const userId = user.id;
+    return PrivateRooms.findAll({
+      where: {
+        userId,
+      }
+    });
+  })
+  .then(privateRooms => {
+    // get url
+    res.send(privateRooms.map((room) => room.url));
+  });
+});
+
+app.get('*', (req, res) => {
+  console.log('req.session', req.session);
+  const pathToIndex = path.join(pathToStaticDir, 'index.html');
+  res.status(200).sendFile(pathToIndex);
 });
 
 /* Kick off server */
