@@ -350,7 +350,7 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
   console.log(person, 'person!!!');
 
   if (req.session.passport) {
-    users.findAll({ where: { id: person.user } }).then(peep=> {
+    users.findAll({ where: { id: person.user } }).then(peep => {
       const fbUser= peep[0].dataValues.userName;
       instruments.findAll({ where: { userName: fbUser } }).then(
         userInstruments => (
