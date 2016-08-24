@@ -266,11 +266,13 @@ io.on('connection', socket => {
     const roomNames = Object.keys(roomObj);
     const container = [];
     for (let i = 0; i < roomNames.length; i++) {
-      container.push({
-        roomName: roomNames[i],
-        numPeople: roomObj[roomNames[i]].length,
-        instruments: roomObj[roomNames[i]].map(peer => peer.instrument),
-      });
+      if (!privRooms[roomNames[i]]) {
+        container.push({
+          roomName: roomNames[i],
+          numPeople: roomObj[roomNames[i]].length,
+          instruments: roomObj[roomNames[i]].map(peer => peer.instrument),
+        });
+      }
     }
     return container;
   }
