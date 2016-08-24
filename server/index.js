@@ -61,7 +61,7 @@ passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile,
         return done(null, user);
       } else {
         return users.create({
-          userName: `${profile.name.givenName} ${profile.name.familyName}`,
+          userName: `${profile.displayName}`,
           password: "N/A",
           facebookId: profile.id,
           token: accessToken,
@@ -345,7 +345,7 @@ app.get('/auth/facebook/callback',
   })
 );
 
-app.get("/userLoggedInToMakeInst", (req, res) => {
+app.get("/getUserInfo", (req, res) => {
   const person=req.session.userName||req.session.passport;
   console.log(person, 'person!!!');
 
@@ -371,30 +371,34 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
   }
 });
 
-// app.get("/fbLoggedIn?", (req, res) => {
-//   if (req.session.passport) {
-//     users.findAll({
-//       where: {
-//         id: req.session.passport.user
-//       }
-//     }).then(
-//       people => {
-//         const person = people[0].dataValues.userName;
-//         instruments.findAll({
-//           where: {
-//             userName: person
-//           }
-//         }).then(
-//           userInstruments => (
-//             userInstruments.map(a => a.dataValues)
-//           )).then(userInstrumentsList => {
-//             res.send([person, userInstrumentsList]);
-//           });
-//       });
-//   } else {
-//     res.send("false");
-//   }
-// });
+app.get("/fbLoggedIn?", (req, res) => {
+  
+  if (req.session.passport) {
+    console.log('rsp',req.session.passport);
+    users.findAll({
+      where: {
+        id: req.session.passport.user
+      }
+    }).then(
+      people => {
+
+        const person = people[0].dataValues.userName;
+        console.log('person!!!', person);
+        instruments.findAll({
+          where: {
+            userName: person
+          }
+        }).then(
+          userInstruments => (
+            userInstruments.map(a => a.dataValues)
+          )).then(userInstrumentsList => {
+            res.send([person, userInstrumentsList]);
+          });
+      });
+  } else {
+    res.send("false");
+  }
+});
 
 
 app.get('*', (req, res) => {
