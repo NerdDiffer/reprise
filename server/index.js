@@ -19,8 +19,11 @@ const server = http.createServer(app);
 const io = socketIO.listen(server);
 
 /* DB  */
+
 const users = require('./db/models').users;
+const instruments = require('./db/models').instruments;
 const PrivateRooms = require('./db/models').PrivateRooms;
+
 
 /* Middleware */
 app.use(cookieParser());
@@ -49,8 +52,7 @@ const fbConfig = {
 };
 
 passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile, done) => {
-  console.log('this is the profile', profile.id);
-
+  console.log('this is the profile', profile);
   users.findAll({ where: { facebookId: profile.id } })
     .then(user => {
       if (user.length > 0) {
@@ -82,7 +84,6 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   console.log('this is id in deserialize', id);
-
   users.findAll({ where: { id } })
     .then(found => {
       const values = found[0].dataValues;
@@ -187,6 +188,25 @@ io.on('connection', socket => {
     io.to(`/#${answer.to}`).emit('answer', answer);
   });
 
+  socket.on('newInstCreated', instrument => {
+    console.log('this is a brand new instrument', instrument, instrument.A);
+    instruments.create({
+      userName: instrument.userName,
+      instrumentName: instrument.name,
+      A: JSON.stringify(instrument.A),
+      S: JSON.stringify(instrument.S),
+      D: JSON.stringify(instrument.D),
+      F: JSON.stringify(instrument.F),
+      G: JSON.stringify(instrument.G),
+      H: JSON.stringify(instrument.H),
+      J: JSON.stringify(instrument.J),
+      K: JSON.stringify(instrument.K),
+      L: JSON.stringify(instrument.L)
+    }).then(instrumentEntry => {
+      console.log(instrumentEntry.dataValues, ' got entered');
+    });
+  });
+
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));
@@ -239,13 +259,10 @@ io.on('connection', socket => {
 /* Routes */
 app.get('/logout', (req, res) => {
   console.log('mysession', req.session);
-
   if (req.session.userName) {
     delete req.session.userName;
   }
-
   req.logout();
-
   console.log('mysession after logout', req.session);
   res.sendStatus(200);
 });
@@ -307,16 +324,6 @@ app.post('/signup', (req, res) => {
   });
 });
 
-app.get('/MakeInstrument', (req, res) => {
-  console.log("youre trying to access make Instrument!!!");
-
-  if (!req.session.userName&&!req.session.passport) {
-    res.redirect("/login");
-  } else {
-    console.log("Do nothing");
-  }
-});
-
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
@@ -325,6 +332,30 @@ app.get('/auth/facebook/callback',
     failureRedirect: '/login'
   })
 );
+
+app.get("/userLoggedInToMakeInst", (req, res) => {
+  const person=req.session.userName||req.session.passport;
+  console.log(person, 'person!!!');
+
+  if (req.session.passport) {
+    // users.findAll({ where: { id: person.user } }).then(
+    instruments.findAll({ where: { id: person.user } }).then(
+        userInstruments => (
+           userInstruments.map(a => a.dataValues)
+        )).then(userInstrumentsList => {
+          console.log(person, userInstrumentsList, 'userInsts');
+          res.send([person, userInstrumentsList]);
+        });
+  } else {
+    instruments.findAll({ where: { userName: person } }).then(
+        userInstruments => (
+           userInstruments.map(a => a.dataValues)
+        )).then(userInstrumentsList => {
+          console.log(person, userInstrumentsList, 'userInsts');
+          res.send([person, userInstrumentsList]);
+        });
+  }
+});
 
 app.get("/fbLoggedIn?", (req, res) => {
   console.log(req.session.passport);
