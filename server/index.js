@@ -216,15 +216,15 @@ io.on('connection', socket => {
     instruments.create({
       userName: instrument.userName,
       instrumentName: instrument.name,
-      A: JSON.stringify(instrument.A),
-      S: JSON.stringify(instrument.S),
-      D: JSON.stringify(instrument.D),
-      F: JSON.stringify(instrument.F),
-      G: JSON.stringify(instrument.G),
-      H: JSON.stringify(instrument.H),
-      J: JSON.stringify(instrument.J),
-      K: JSON.stringify(instrument.K),
-      L: JSON.stringify(instrument.L)
+      A: instrument.A,
+      S: instrument.S,
+      D: instrument.D,
+      F: instrument.F,
+      G: instrument.G,
+      H: instrument.H,
+      J: instrument.J,
+      K: instrument.K,
+      L: instrument.L,
     }).then(instrumentEntry => {
       console.log(instrumentEntry.dataValues, ' got entered');
     });
