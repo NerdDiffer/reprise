@@ -95,6 +95,8 @@ passport.deserializeUser((id, done) => {
 /* Sockets */
 // rooms for peer connection sockets
 const rooms = {};
+// keep track of private rooms
+const privRooms = {};
 // map actual rooms to another room which contains peer info sockets
 const listenerRooms = {};
 
@@ -103,11 +105,17 @@ io.on('connection', socket => {
 
   io.to(socket.id).emit('connected');
 
-  socket.on('create room', roomId => {
+  socket.on('create room', data => {
+    const roomId = data.roomId;
+    const isPrivate = data.isPrivate;
+    const socketId = socket.id;
     if (rooms[roomId]) {
       io.to(socket.id).emit('room name taken');
     } else {
       rooms[roomId] = [];
+      if (isPrivate) {
+        privRooms[roomId] = data;
+      }
       io.to(socket.id).emit('room created', roomId);
     }
   });
