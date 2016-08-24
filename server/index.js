@@ -267,35 +267,46 @@ app.get('/logout', (req, res) => {
   res.sendStatus(200);
 });
 
+
 app.post('/login', (req, res) => {
   console.log('req.body.pass', req.body.pass);
   users.findAll({
     where: {
       userName: req.body.user,
     }
-  })
-  .then(person => {
-    console.log(person[0].dataValues.salt, 'person salt');
-    const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
-    console.log('this is the hash', hash);
+  }).then(person => {
+    if (person[0]===undefined) {
+      console.log('BadLogin');
+      res.send("");
+    } else {
+      console.log(person[0], 'Person[0]!!!');
+      const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
 
-    users.findAll({
-      where: {
-        userName: req.body.user,
-        password: hash
-      }
-    })
-    .then(user => {
-      if (user.length > 0) {
-        console.log("succ logged in");
-        req.session.userName = req.body.user;
-        res.send("Succ");
-      } else {
-        console.log('BadLogin');
-        console.log('req.session', req.session);
-        res.send("BadLogin");
-      }
-    });
+      users.findAll({
+        where: {
+          userName: req.body.user,
+          password: hash
+        }
+      }).then(user => {
+        if (user.length > 0) {
+          instruments.findAll({
+            where: {
+              userName: req.body.user
+            }
+          }).then(
+            userInstruments => (
+               userInstruments.map(a => a.dataValues)
+            )).then(userInstrumentsList => {
+              console.log("succ logged in", userInstrumentsList);
+              req.session.userName = req.body.user;
+              res.send(userInstrumentsList);
+            });
+        } else {
+          console.log('BadLogin');
+          res.send("");
+        }
+      });
+    }
   });
 });
 
