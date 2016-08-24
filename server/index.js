@@ -373,8 +373,8 @@ app.get("/getUserInfo", (req, res) => {
 
 app.get("/fbLoggedIn", (req, res) => {
   if (req.session.passport) {
-    console.log('rsp',req.session.passport);
-    users.findAll({
+    console.log('rsp', req.session.passport);
+    users.findOne({
       where: {
         id: req.session.passport.user
       }
