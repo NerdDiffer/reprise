@@ -155,6 +155,7 @@ io.on('connection', socket => {
             if (socketsInRoom.length === 0) {
               delete rooms[roomId];
               delete listenerRooms[roomId];
+              delete privRooms[roomId];
             } else {
               // give updated list of peer info
               io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
@@ -184,6 +185,7 @@ io.on('connection', socket => {
           if (room.length === 0) {
             delete rooms[data.roomId];
             delete listenerRooms[data.roomId];
+            delete privRooms[data.roomId];
           } else {
             // give updated list of peer info
             io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
