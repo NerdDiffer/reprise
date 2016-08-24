@@ -19,10 +19,12 @@ const server = http.createServer(app);
 const io = socketIO.listen(server);
 
 /* DB  */
-const users = require('./db/connection').users;
 
-const instruments = require('./db/connection').instruments;
-const PrivateRooms = require('./db/connection').PrivateRooms;
+
+const users = require('./db/models').users;
+const instruments = require('./db/models').instruments;
+const PrivateRooms = require('./db/models').PrivateRooms;
+
 
 /* Middleware */
 app.use(cookieParser());
@@ -187,19 +189,6 @@ io.on('connection', socket => {
     io.to(`/#${answer.to}`).emit('answer', answer);
   });
 
-
-  socket.on('peer info', peerInfo => {
-    socket.to(peerInfo.roomId).broadcast.emit('peer info', peerInfo);
-  });
-
-  socket.on('ask for peer info', info => {
-    socket.to(info.roomId).broadcast.emit('ask for peer info', info);
-  });
-
-  socket.on('give peer info', info => {
-    io.to(`/#${info.sendTo}`).emit('peer info', info);
-  });
-
   socket.on('newInstCreated', instrument => {
     console.log('this is a brand new instrument', instrument, instrument.A);
     instruments.create({
@@ -218,7 +207,6 @@ io.on('connection', socket => {
       console.log(instrumentEntry.dataValues, ' got entered');
     });
   });
-
 
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
@@ -280,6 +268,7 @@ app.get('/logout', (req, res) => {
   res.sendStatus(200);
 });
 
+
 app.post('/login', (req, res) => {
   console.log('req.body.pass', req.body.pass);
   users.findAll({
@@ -293,6 +282,7 @@ app.post('/login', (req, res) => {
     } else {
       console.log(person[0], 'Person[0]!!!');
       const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
+
       users.findAll({
         where: {
           userName: req.body.user,

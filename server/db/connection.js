@@ -1,9 +1,5 @@
 const mysql = require('mysql');
-//
-const users = require('./models').users;
-const instruments = require('./models').instruments;
 
-const PrivateRooms = require('./models').PrivateRooms;
 
 const connection= mysql.createConnection({
   host: 'localhost',
@@ -12,7 +8,6 @@ const connection= mysql.createConnection({
   database: 'tbd'
 });
 
-
 connection.connect(err => {
   if (err) {
     console.log('Error connecting to Db');
@@ -20,9 +15,3 @@ connection.connect(err => {
   }
   console.log('Connection established');
 });
-
-module.exports = {
-  users,
-  PrivateRooms,
-  instruments,
-};
