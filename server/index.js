@@ -375,7 +375,7 @@ app.get("/getUserInfo", (req, res) => {
 
   if (req.session.passport) {
     users.findOne({ where: { id: person.user } }).then(fbUser => {
-      console.log('uh oh ',fbUser);
+      console.log('uh oh ', fbUser);
       const fbUserName= fbUser.dataValues.userName;
       instruments.findAll({ where: { userName: fbUserName } }).then(
         userInstruments => (
@@ -384,7 +384,7 @@ app.get("/getUserInfo", (req, res) => {
           console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
-   });
+    });
   } else {
     instruments.findAll({ where: { userName: person } }).then(
         userInstruments => (
@@ -404,8 +404,8 @@ app.get("/fbLoggedIn", (req, res) => {
         id: req.session.passport.user
       }
     }).then(
-      people => {console.log('people on 406', people);
-
+      people => {
+        console.log('people on 406', people);
         const person = people.dataValues.userName;
         console.log('person!!!', person);
         instruments.findAll({
