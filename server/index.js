@@ -95,6 +95,8 @@ passport.deserializeUser((id, done) => {
 /* Sockets */
 // rooms for peer connection sockets
 const rooms = {};
+// keep track of private rooms
+const privRooms = {};
 // map actual rooms to another room which contains peer info sockets
 const listenerRooms = {};
 
@@ -103,11 +105,18 @@ io.on('connection', socket => {
 
   io.to(socket.id).emit('connected');
 
-  socket.on('create room', roomId => {
+  socket.on('create room', data => {
+    const roomId = data.roomId;
+    const isPrivate = data.isPrivate || false;
+    // const socketId = socket.id;
     if (rooms[roomId]) {
       io.to(socket.id).emit('room name taken');
     } else {
       rooms[roomId] = [];
+      if (isPrivate) {
+        // value as username?
+        privRooms[roomId] = true;
+      }
       io.to(socket.id).emit('room created', roomId);
     }
   });
@@ -143,11 +152,17 @@ io.on('connection', socket => {
             socket.leave(roomId);
             socket.broadcast.to(roomId).emit('remove connection', id);
 
+            if (socketsInRoom.length === 0) {
+              delete rooms[roomId];
+              delete listenerRooms[roomId];
+              delete privRooms[roomId];
+            } else {
+              // give updated list of peer info
+              io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
+            }
             // update open rooms table
             io.emit('give rooms info', getRoomsInfo(rooms));
 
-            // give updated list of peer info
-            io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
             break;
           }
         }
@@ -166,11 +181,18 @@ io.on('connection', socket => {
           console.log(rooms[data.roomId]);
           socket.broadcast.to(data.roomId).emit('remove connection', data.id);
 
+          // delete room if empty
+          if (room.length === 0) {
+            delete rooms[data.roomId];
+            delete listenerRooms[data.roomId];
+            delete privRooms[data.roomId];
+          } else {
+            // give updated list of peer info
+            io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
+          }
           // update open rooms table
           io.emit('give rooms info', getRoomsInfo(rooms));
 
-          // give updated list of peer info
-          io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
           // disconnect socket, client will create new socket when it starts
           // peer connection process again
           socket.disconnect(0);
@@ -246,11 +268,13 @@ io.on('connection', socket => {
     const roomNames = Object.keys(roomObj);
     const container = [];
     for (let i = 0; i < roomNames.length; i++) {
-      container.push({
-        roomName: roomNames[i],
-        numPeople: roomObj[roomNames[i]].length,
-        instruments: roomObj[roomNames[i]].map(peer => peer.instrument),
-      });
+      if (!privRooms[roomNames[i]]) {
+        container.push({
+          roomName: roomNames[i],
+          numPeople: roomObj[roomNames[i]].length,
+          instruments: roomObj[roomNames[i]].map(peer => peer.instrument),
+        });
+      }
     }
     return container;
   }
@@ -373,12 +397,6 @@ app.get("/fbLoggedIn?", (req, res) => {
   res.send(req.session.passport ? "true" : "false");
 });
 
-app.get('*', (req, res) => {
-  console.log('req.session', req.session);
-  const pathToIndex = path.join(pathToStaticDir, 'index.html');
-  res.status(200).sendFile(pathToIndex);
-});
-
 app.post('/makeprivateroom', (req, res) => {
   if (!req.session.userName && !req.session.passport) {
     res.send('you must be logged in');
@@ -401,6 +419,32 @@ app.post('/makeprivateroom', (req, res) => {
       res.sendStatus(200);
     });
   }
+});
+
+app.get('/getprivaterooms', (req, res) => {
+  users.findOne({
+    where: {
+      userName: req.session.userName,
+    }
+  })
+  .then(user => {
+    const userId = user.id;
+    return PrivateRooms.findAll({
+      where: {
+        userId,
+      }
+    });
+  })
+  .then(privateRooms => {
+    // get url
+    res.send(privateRooms.map((room) => room.url));
+  });
+});
+
+app.get('*', (req, res) => {
+  console.log('req.session', req.session);
+  const pathToIndex = path.join(pathToStaticDir, 'index.html');
+  res.status(200).sendFile(pathToIndex);
 });
 
 /* Kick off server */
