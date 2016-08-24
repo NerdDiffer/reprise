@@ -107,14 +107,15 @@ io.on('connection', socket => {
 
   socket.on('create room', data => {
     const roomId = data.roomId;
-    const isPrivate = data.isPrivate;
-    const socketId = socket.id;
+    const isPrivate = data.isPrivate || false;
+    // const socketId = socket.id;
     if (rooms[roomId]) {
       io.to(socket.id).emit('room name taken');
     } else {
       rooms[roomId] = [];
       if (isPrivate) {
-        privRooms[roomId] = data;
+        // value as username?
+        privRooms[roomId] = true;
       }
       io.to(socket.id).emit('room created', roomId);
     }
