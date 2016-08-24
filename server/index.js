@@ -360,14 +360,16 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
   console.log(person, 'person!!!');
 
   if (req.session.passport) {
-    // users.findAll({ where: { id: person.user } }).then(
-    instruments.findAll({ where: { id: person.user } }).then(
+    users.findAll({ where: { id: person.user } }).then(peep=> {
+      const fbUser= peep[0].dataValues.userName;
+      instruments.findAll({ where: { userName: fbUser } }).then(
         userInstruments => (
            userInstruments.map(a => a.dataValues)
         )).then(userInstrumentsList => {
           console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
+   });
   } else {
     instruments.findAll({ where: { userName: person } }).then(
         userInstruments => (
