@@ -143,11 +143,16 @@ io.on('connection', socket => {
             socket.leave(roomId);
             socket.broadcast.to(roomId).emit('remove connection', id);
 
+            if (socketsInRoom.length === 0) {
+              delete rooms[roomId];
+              delete listenerRooms[roomId];
+            } else {
+              // give updated list of peer info
+              io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
+            }
             // update open rooms table
             io.emit('give rooms info', getRoomsInfo(rooms));
 
-            // give updated list of peer info
-            io.to(listenerRooms[roomId]).emit('receive peer info', JSON.stringify(rooms[roomId]));
             break;
           }
         }
@@ -166,11 +171,17 @@ io.on('connection', socket => {
           console.log(rooms[data.roomId]);
           socket.broadcast.to(data.roomId).emit('remove connection', data.id);
 
+          // delete room if empty
+          if (room.length === 0) {
+            delete rooms[data.roomId];
+            delete listenerRooms[data.roomId];
+          } else {
+            // give updated list of peer info
+            io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
+          }
           // update open rooms table
           io.emit('give rooms info', getRoomsInfo(rooms));
 
-          // give updated list of peer info
-          io.to(listenerRooms[data.roomId]).emit('receive peer info', JSON.stringify(room));
           // disconnect socket, client will create new socket when it starts
           // peer connection process again
           socket.disconnect(0);
