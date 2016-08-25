@@ -436,7 +436,8 @@ app.post('/makeprivateroom', (req, res) => {
       }
     })
     .then((user) => {
-      const userId = user.id;
+      // if query came back empty handed then user must be logged in via facebook, and their id in schema is stored in passport
+      const userId = user ? user.id : req.session.passport.user;
       return PrivateRooms.create({
         url: req.body.roomName,
         userId,
@@ -449,13 +450,15 @@ app.post('/makeprivateroom', (req, res) => {
 });
 
 app.get('/getprivaterooms', (req, res) => {
+  // is it not a facebook user?
   users.findOne({
     where: {
       userName: req.session.userName,
     }
   })
   .then(user => {
-    const userId = user.id;
+    // if query came back empty handed then user must be logged in via facebook, and their id in schema is stored in passport
+    const userId = user ? user.id : req.session.passport.user;
     return PrivateRooms.findAll({
       where: {
         userId,
@@ -464,7 +467,7 @@ app.get('/getprivaterooms', (req, res) => {
   })
   .then(privateRooms => {
     // get url
-    res.send(privateRooms.map((room) => room.url));
+    res.send(privateRooms.map(room => room.url));
   });
 });
 
