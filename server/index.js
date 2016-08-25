@@ -20,6 +20,7 @@ const io = socketIO.listen(server);
 
 /* DB  */
 
+
 const users = require('./db/models').users;
 const instruments = require('./db/models').instruments;
 const PrivateRooms = require('./db/models').PrivateRooms;
@@ -60,7 +61,7 @@ passport.use(new FacebookStrategy(fbConfig, (accessToken, refreshToken, profile,
         return done(null, user);
       } else {
         return users.create({
-          userName: `${profile.name.givenName} ${profile.name.familyName}`,
+          userName: `${profile.displayName}`,
           password: "N/A",
           facebookId: profile.id,
           token: accessToken,
@@ -215,15 +216,15 @@ io.on('connection', socket => {
     instruments.create({
       userName: instrument.userName,
       instrumentName: instrument.name,
-      A: JSON.stringify(instrument.A),
-      S: JSON.stringify(instrument.S),
-      D: JSON.stringify(instrument.D),
-      F: JSON.stringify(instrument.F),
-      G: JSON.stringify(instrument.G),
-      H: JSON.stringify(instrument.H),
-      J: JSON.stringify(instrument.J),
-      K: JSON.stringify(instrument.K),
-      L: JSON.stringify(instrument.L)
+      A: instrument.A,
+      S: instrument.S,
+      D: instrument.D,
+      F: instrument.F,
+      G: instrument.G,
+      H: instrument.H,
+      J: instrument.J,
+      K: instrument.K,
+      L: instrument.L,
     }).then(instrumentEntry => {
       console.log(instrumentEntry.dataValues, ' got entered');
     });
@@ -368,19 +369,22 @@ app.get('/auth/facebook/callback',
   })
 );
 
-app.get("/userLoggedInToMakeInst", (req, res) => {
+app.get("/getUserInfo", (req, res) => {
   const person=req.session.userName||req.session.passport;
   console.log(person, 'person!!!');
 
   if (req.session.passport) {
-    // users.findAll({ where: { id: person.user } }).then(
-    instruments.findAll({ where: { id: person.user } }).then(
+    users.findOne({ where: { id: person.user } }).then(fbUser => {
+      console.log('uh oh ', fbUser);
+      const fbUserName= fbUser.dataValues.userName;
+      instruments.findAll({ where: { userName: fbUserName } }).then(
         userInstruments => (
            userInstruments.map(a => a.dataValues)
         )).then(userInstrumentsList => {
           console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
+    });
   } else {
     instruments.findAll({ where: { userName: person } }).then(
         userInstruments => (
@@ -392,9 +396,32 @@ app.get("/userLoggedInToMakeInst", (req, res) => {
   }
 });
 
-app.get("/fbLoggedIn?", (req, res) => {
-  console.log(req.session.passport);
-  res.send(req.session.passport ? "true" : "false");
+app.get("/fbLoggedIn", (req, res) => {
+  if (req.session.passport) {
+    console.log('rsp', req.session.passport);
+    users.findOne({
+      where: {
+        id: req.session.passport.user
+      }
+    }).then(
+      people => {
+        console.log('people on 406', people);
+        const person = people.dataValues.userName;
+        console.log('person!!!', person);
+        instruments.findAll({
+          where: {
+            userName: person
+          }
+        }).then(
+          userInstruments => (
+            userInstruments.map(a => a.dataValues)
+          )).then(userInstrumentsList => {
+            res.send([person, userInstrumentsList]);
+          });
+      });
+  } else {
+    res.send("false");
+  }
 });
 
 app.post('/makeprivateroom', (req, res) => {
