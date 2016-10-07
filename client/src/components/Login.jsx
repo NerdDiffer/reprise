@@ -8,13 +8,12 @@ import { showErrorMessage } from '../utils/helperFunctions';
 class Login extends Component {
 
   helperLogin() {
-    const user=$('#UserNameLogin').val();
-    const pass= $('#UserNamePass').val();
-    $.post("/login", { user, pass, }, (resp) => {
-      console.log(typeof resp, resp, 'resp!');
+    const username = $('#UserNameLogin').val();
+    const password = $('#UserNamePass').val();
+
+    $.post("/api/accounts/login", { username, password }, (resp) => {
       if (typeof resp !=='string') {
-        console.log(resp, this.props.updateUserInstrument);
-        this.props.logIn(user, resp);
+        this.props.logIn(username, resp);
         this.context.router.push('/');
       } else {
         showErrorMessage("#LIMessages", 'Bad login', "badLogin");

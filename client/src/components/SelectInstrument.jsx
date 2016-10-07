@@ -24,7 +24,6 @@ const SelectInstrument = ({ handleSelect, handleClick, size, ownInstrument, extr
   // own instrument will be the instrument name if it is a pre-built instrument, and will a the string 'Your instrument is: instrument' otherwise.
   if (ownInstrument) {
     if (ownInstrument[0] === 'Y') {
-      // console.log(extraInstruments[startIndex - instruments.length].instrumentName !== ownInstrument.slice(17));
       startIndex = instruments.length;
       while (extraInstruments[startIndex - instruments.length].instrumentName !== ownInstrument.slice(17)) {
         startIndex++;
@@ -38,7 +37,7 @@ const SelectInstrument = ({ handleSelect, handleClick, size, ownInstrument, extr
     console.log('There was an error.  Own instrument is undefined');
   }
 
-  console.log('extraInstruments', extraInstruments);
+  // console.log('extraInstruments', extraInstruments);
   return (
     <div style={{ textAlign: "center" }}>
       <Carousel

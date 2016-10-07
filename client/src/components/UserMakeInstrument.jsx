@@ -48,8 +48,7 @@ class UserMakeInstrument extends Component {
       this.sampleSound();
     });
 
-    $.get("/getUserInfo", (resp, err) => {
-      console.log('this the the resp to userloggedintomakeinst', resp);
+    $.get("/api/misc/getUserInfo", (resp, err) => {
       if (resp[0] === null) {
         console.log('youre not logged in!');
         this.context.router.push("login");
@@ -64,7 +63,6 @@ class UserMakeInstrument extends Component {
   keyHelper(ID) {
     const keyMapped = this.state.inMemObject[mapIdsToKeys[ID]];
     if (!this.state.tryingToName && keyMapped) {
-      console.log(keyMapped);
       const keyInfo = JSON.parse(keyMapped);
       this.setState({
         noteValue: keyInfo[1],
@@ -102,7 +100,6 @@ class UserMakeInstrument extends Component {
   }
 
   mapThat() {
-    console.log(this.state.noteValue);
     const par1 = this.state.noteValue;
     const par2 = this.state.octaveValue;
     const par3 = this.state.PDValue;
@@ -112,7 +109,6 @@ class UserMakeInstrument extends Component {
     const currentInMemObj = this.state.inMemObject;
     currentInMemObj[key] = JSON.stringify([inst, par1, par2, par3, par4]);
     if (!par1&&!par2&&!par3&&!par4) {
-     // console.log('please make a proper mapping');
       showErrorMessage("#makeInstErrorMessages", 'Please make a Proper Mapping', 'propMapError');
     } else {
       this.setState({
@@ -146,16 +142,13 @@ class UserMakeInstrument extends Component {
 
     // for (const key in currentInMemObj) {
     //   if (key.length === 1) {
-    //    // console.log('a key exists!');
     //     empty = false;
     //   }
     // }
     if (name.length === 0) {
       showErrorMessage("#nameInstErrMessage", 'Pls name your instrument', 'npo');
-    //  console.log('you need to name it something!');
     } else if (empty) {
       showErrorMessage("#nameInstErrMessage", 'Pls map some keys', 'npi');
-     // console.log('youve not mapped any keys!!!');
     } else if (/\W/.test(name)===true) {
       showErrorMessage("#nameInstErrMessage", 'Letters and numbers only please!', 'regexErr');
     } else {
@@ -178,7 +171,6 @@ class UserMakeInstrument extends Component {
 
   deleteKey() {
     const keyToDelete = this.state.keyValue;
-    // console.log( "you want to delete"+ $(".selectKey option:selected").text());
     const newInMemObj = this.state.inMemObject;
     delete newInMemObj[keyToDelete];
     this.setState({
@@ -186,35 +178,28 @@ class UserMakeInstrument extends Component {
     });
 
     const idToClear = mapKeysToIds[keyToDelete];
-  //  console.log('idToAdd', idToClear);
     $(idToClear).css("border", "2px solid black");
   }
 
   handleNoteChange(event, index, value) {
-    console.log(value);
     this.setState({ noteValue: value });
   }
   handleKeyChange(event, index, value) {
-    console.log(value);
     this.setState({ keyValue: value });
   }
 
   handleOctaveChange(event, index, value) {
-    console.log(value);
     this.setState({ octaveValue: value });
   }
   handleTypeChange(event, index, value) {
-    console.log(value);
     this.setState({ typeValue: value });
   }
 
   handlePDChange(event, index, value) {
-    console.log(value);
     this.setState({ PDValue: value });
   }
 
   killKeypress() {
-    console.log("keypress should be killed");
     $(document).off();
     $(document).off("keypress");
     this.setState({
@@ -223,8 +208,6 @@ class UserMakeInstrument extends Component {
   }
 
   addKeypress() {
-    console.log(this, 'this in addkeypress');
-    console.log("keypress should be enabled");
     if (this.state.tryingToName) {
       $(document).keypress((e) => {
         if (e.which === 97) {
@@ -254,7 +237,6 @@ class UserMakeInstrument extends Component {
   }
 
   changeInst() {
-    console.log("inst changed");
     $(".par").val("");
     const inst = $(".selectInst option:selected").text();
     this.setState({

@@ -81,11 +81,10 @@ class CreateOrJoin extends Component {
 
     // get private rooms from server/db if user is logged in
     if (this.props.loggedIn) {
-      $.get('/getprivaterooms')
+      $.get('/api/rooms')
         .then((privateRooms) => {
-          console.log(privateRooms);
           this.setState({
-            privateRooms,
+            privateRooms
           });
         });
     }
@@ -162,11 +161,10 @@ class CreateOrJoin extends Component {
       roomName = `${shortid.generate()}-${shortid.generate()}`;
     }
     // send server the roomname.  Username is taken from session
-    $.post('/makeprivateroom', { roomName }, (res) => {
+    $.post('/api/rooms', { roomName }, (res) => {
       if (res !== 'OK') {
-        console.log(res);
+        // console.log(res);
       } else {
-        console.log('SUCCESS!!!');
         const data = {
           roomId: roomName,
           isPrivate: true,
@@ -244,7 +242,6 @@ class CreateOrJoin extends Component {
         radioButtonVal: 'public',
         showMustBeLoggedIn: true,
       });
-      console.log('You must be logged in, dingus');
     } else if (value === 'public') {
       this.setState({
         togglePrivateRoom: false,

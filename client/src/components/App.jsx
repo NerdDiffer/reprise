@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import $ from 'jquery';
 
 import io from 'socket.io-client';
 
@@ -26,21 +27,18 @@ class App extends Component {
   }
 
   componentDidMount() {
-    $.get("/getUserInfo", (resp, err) => {
-    // console.log('this the the resp to userloggedintomakeinst', resp);
+    $.get("/api/misc/getUserInfo", (resp, err) => {
       if (resp[0] === null) {
-     // console.log('youre not logged in!');
       } else {
         this.logIn(JSON.stringify(resp[0]), resp[1]);
       }
     });
 
-    $.get("/fbLoggedIn", (response, err) => {
+    $.get("/api/misc/fbLoggedIn", (response, err) => {
       if (response !== "false") {
-        console.log(response[0], typeof response[0], 'here!!!');
         this.logIn(response[0], response[1]);
       } else {
-        console.log('not logged to fb');
+        // console.log('not logged to fb');
       }
     });
   }
