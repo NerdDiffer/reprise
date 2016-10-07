@@ -7,6 +7,8 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+        const { PrivateRoom, User } = models;
+        PrivateRoom.belongsTo(User, { foreignKey: 'user_id' });
       }
     }
   });

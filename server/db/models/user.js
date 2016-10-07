@@ -11,6 +11,9 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+        const { User, Instrument, PrivateRoom } = models;
+        User.hasMany(Instrument, { foreignKey: 'user_id' });
+        User.hasMany(PrivateRoom, { foreignKey: 'user_id' });
       }
     }
   });

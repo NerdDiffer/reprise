@@ -9,6 +9,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'users', // name of table
+          key: 'id'
+        },
+        onUpdate: 'cascade', // default
+        onDelete: 'cascade',
+        allowNull: false,
+      },
       url: {
         type: Sequelize.STRING
       },
