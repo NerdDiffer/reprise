@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "reprise",
+    "password": null,
+    "database": "reprise_development",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "reprise",
+    "password": null,
+    "database": "reprise_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "reprise",
+    "password": null,
+    "database": "reprise_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
