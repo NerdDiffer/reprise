@@ -1,8 +1,11 @@
+const bcrypt = require('bcryptjs');
+const { hasSession, clearSession, createSession } = require('../auth/sessionHelpers');
+const { users, instruments } = require('../db/models');
+
 // GET `/api/accounts/logout`
 module.exports.logout = (req, res) => {
-  console.log('mysession', req.session);
-  if (req.session.userName) {
-    delete req.session.userName;
+  if (hasSession(req)) {
+    clearSession(req);
   }
   req.logout();
   console.log('mysession after logout', req.session);
@@ -11,41 +14,26 @@ module.exports.logout = (req, res) => {
 
 // POST `/api/accounts/login`
 module.exports.login = (req, res) => {
-  console.log('req.body.pass', req.body.pass);
-  users.findAll({
+  const { user, pass } = req.body;
+
+  users.findOne({
     where: {
-      userName: req.body.user,
+      userName: user
     }
   }).then(person => {
-    if (person[0]===undefined) {
-      console.log('BadLogin');
-      res.send("");
+    if (!person) {
+      res.redirect('/api/accounts/login');
     } else {
-      console.log(person[0], 'Person[0]!!!');
-      const hash = bcrypt.hashSync(req.body.pass, person[0].dataValues.salt);
-
-      users.findAll({
-        where: {
-          userName: req.body.user,
-          password: hash
-        }
-      }).then(user => {
-        if (user.length > 0) {
-          instruments.findAll({
-            where: {
-              userName: req.body.user
-            }
-          }).then(
-            userInstruments => (
-               userInstruments.map(a => a.dataValues)
-            )).then(userInstrumentsList => {
-              console.log("succ logged in", userInstrumentsList);
-              req.session.userName = req.body.user;
-              res.send(userInstrumentsList);
-            });
+      bcrypt.compare(pass, user.hash, (err, matches) => {
+        if (!matches) {
+          res.redirect('/api/accounts/login');
         } else {
-          console.log('BadLogin');
-          res.send("");
+          instruments.findAll({ where: { userName: person.userName }})
+            .then(collection => {
+              const userInstruments = collection.map(inst => inst.dataValues);
+              createSession(req, user);
+              res.status(200).json(userInstruments);
+            });
         }
       });
     }
@@ -54,26 +42,27 @@ module.exports.login = (req, res) => {
 
 // POST `/api/accounts`
 module.exports.signup = (req, res) => {
-  users.findAll({
-    where: {
-      userName: req.body.user
-    }
-  }).then(user => {
-    if (user.length > 0) {
-      console.log('this is req.sesion', req.session);
-      res.send('UserAlreadyExists');
-    } else {
-      const salt = bcrypt.genSaltSync(10);
-      const hash = bcrypt.hashSync(req.body.pass, salt);
-      users.create({
-        userName: req.body.user,
-        password: hash,
-        salt,
-      }).then(entry => {
-        console.log(entry.dataValues, ' got entered');
-        req.session.userName = req.body.user;
-        res.send('SuccessSignup');
-      });
-    }
-  });
+  const userName = req.body.user; // TODO: refactor client to send better-named parameters
+  const password = req.body.pass;
+
+  users.findOne({ where: { userName } })
+    .then(user => {
+      if (user) {
+        res.status(200).json('User already exists by the name', userName);
+      } else {
+        // TODO: user asynchronous methods instead
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(password, salt);
+
+        users.create({
+          userName,
+          password: hash,
+          salt,
+        }).then(entry => {
+          createSession(req, userName);
+          // TODO: redirect user somewhere cool
+          res.status(201).json('Successfully signed up');
+        });
+      }
+    });
 };

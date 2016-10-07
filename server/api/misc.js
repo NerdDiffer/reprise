@@ -2,8 +2,8 @@
 
 // GET `/api/misc/getUserInfo`
 module.exports.getUserInfo = (req, res) => {
-  const person=req.session.userName||req.session.passport;
-  console.log(person, 'person!!!');
+  // TODO: figure out how passport sets session
+  const person = req.session.userName || req.session.passport;
 
   if (req.session.passport) {
     users.findOne({ where: { id: person.user } }).then(fbUser => {

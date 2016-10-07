@@ -1,13 +1,16 @@
+const { users, PrivateRooms } = require('../db/models');
+const { isLoggedIn, readSession } = require('../auth/sessionHelpers');
+
 // POST `/api/rooms/`
 module.exports.createPrivateRoom = (req, res) => {
-  if (!req.session.userName && !req.session.passport) {
+  if (!isLoggedIn(req)) {
     res.send('you must be logged in');
     console.log('User must be logged in to make private room');
   } else {
     console.log('making private rooms');
     users.findOne({
       where: {
-        userName: req.session.userName,
+        userName: readSession(req)
       }
     })
     .then((user) => {
@@ -29,7 +32,7 @@ module.exports.getPrivateRooms = (req, res) => {
   // is it not a facebook user?
   users.findOne({
     where: {
-      userName: req.session.userName,
+      userName: readSession(req)
     }
   })
   .then(user => {

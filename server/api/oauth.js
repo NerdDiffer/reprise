@@ -1,4 +1,4 @@
-// TODO: put all passport stuff in here?
+const passport = require('../auth/passport');
 
 // GET `/api/oauth/facebook`
 module.exports.facebook = passport.authenticate('facebook');
