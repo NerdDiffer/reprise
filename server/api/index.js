@@ -2,6 +2,7 @@ const express = require('express');
 const accounts = require('./accounts');
 const oauth = require('./oauth');
 const rooms = require('./rooms');
+const misc = require('./misc');
 
 const router = express.Router();
 

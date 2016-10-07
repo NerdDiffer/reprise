@@ -1,4 +1,5 @@
 // TODO: figure out what these handlers do & put them somewhere else
+const { users, instruments } = require('../db/models');
 
 // GET `/api/misc/getUserInfo`
 module.exports.getUserInfo = (req, res) => {
@@ -7,13 +8,11 @@ module.exports.getUserInfo = (req, res) => {
 
   if (req.session.passport) {
     users.findOne({ where: { id: person.user } }).then(fbUser => {
-      console.log('uh oh ', fbUser);
       const fbUserName= fbUser.dataValues.userName;
       instruments.findAll({ where: { userName: fbUserName } }).then(
         userInstruments => (
            userInstruments.map(a => a.dataValues)
         )).then(userInstrumentsList => {
-          console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
     });
@@ -22,7 +21,6 @@ module.exports.getUserInfo = (req, res) => {
         userInstruments => (
            userInstruments.map(a => a.dataValues)
         )).then(userInstrumentsList => {
-          console.log(person, userInstrumentsList, 'userInsts');
           res.send([person, userInstrumentsList]);
         });
   }
@@ -31,16 +29,13 @@ module.exports.getUserInfo = (req, res) => {
 // GET `/api/misc/fbLoggedIn`
 module.exports.fbLoggedIn = (req, res) => {
   if (req.session.passport) {
-    console.log('rsp', req.session.passport);
     users.findOne({
       where: {
         id: req.session.passport.user
       }
     }).then(
       people => {
-        console.log('people on 406', people);
         const person = people.dataValues.userName;
-        console.log('person!!!', person);
         instruments.findAll({
           where: {
             userName: person

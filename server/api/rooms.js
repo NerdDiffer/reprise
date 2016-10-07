@@ -5,9 +5,7 @@ const { isLoggedIn, readSession } = require('../auth/sessionHelpers');
 module.exports.createPrivateRoom = (req, res) => {
   if (!isLoggedIn(req)) {
     res.send('you must be logged in');
-    console.log('User must be logged in to make private room');
   } else {
-    console.log('making private rooms');
     users.findOne({
       where: {
         userName: readSession(req)
@@ -28,7 +26,7 @@ module.exports.createPrivateRoom = (req, res) => {
 };
 
 // GET `/api/rooms/`
-module.exports.getPrivateRooms = (req, res) => {
+module.exports.listPrivateRooms = (req, res) => {
   // is it not a facebook user?
   users.findOne({
     where: {

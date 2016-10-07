@@ -12,8 +12,6 @@ const privRooms = {};
 const listenerRooms = {};
 
 io.on('connection', socket => {
-  console.log('Socket connected with ID: ', socket.id);
-
   io.to(socket.id).emit('connected');
 
   socket.on('create room', data => {
@@ -33,7 +31,6 @@ io.on('connection', socket => {
   });
 
   socket.on('join', roomId => {
-    console.log(socket.id, 'joining', roomId);
     // does room exist?
     if (!rooms[roomId]) {
       io.to(socket.id).emit('invalid room');
@@ -43,7 +40,6 @@ io.on('connection', socket => {
     } else {
       socket.join(roomId);
       rooms[roomId].push({ peerId: socket.id.slice(2), instrument: 'piano' });
-      console.log('room is', rooms[roomId]);
 
       // update open rooms table
       io.emit('give rooms info', getRoomsInfo(rooms));
@@ -89,7 +85,6 @@ io.on('connection', socket => {
         if (room[i].peerId === data.id) {
           room.splice(i, 1);
           socket.leave(data.roomId);
-          console.log(rooms[data.roomId]);
           socket.broadcast.to(data.roomId).emit('remove connection', data.id);
 
           // delete room if empty
@@ -135,7 +130,7 @@ io.on('connection', socket => {
       K: instrument.K,
       L: instrument.L,
     }).then(instrumentEntry => {
-      console.log(instrumentEntry.dataValues, ' got entered');
+        // no op
     });
   });
 

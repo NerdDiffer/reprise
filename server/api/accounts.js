@@ -8,7 +8,6 @@ module.exports.logout = (req, res) => {
     clearSession(req);
   }
   req.logout();
-  console.log('mysession after logout', req.session);
   res.sendStatus(200);
 };
 

@@ -4,9 +4,9 @@ const path = require('path');
 const logger = require('morgan');
 const http = require('http');
 const bodyParser = require('body-parser');
-const expressSession=require('express-session');
+const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
+
 const signalingServer = require('./signaling'); // WebRTC signaling server
 const passport = require('./auth/passport');
 const api = require('./api');
@@ -15,10 +15,7 @@ const api = require('./api');
 const app = express();
 const server = http.createServer(app);
 signalingServer.listen(server);
-require("dotenv").config();
-
-/* DB  */
-const { users, instruments, PrivateRooms } = dbModels;
+require('dotenv').config();
 
 /* Middleware */
 app.use(cookieParser());
@@ -43,7 +40,6 @@ app.use(passport.session());
 app.use(api);
 
 app.get('*', (req, res) => {
-  console.log('req.session', req.session);
   const pathToIndex = path.join(pathToStaticDir, 'index.html');
   res.status(200).sendFile(pathToIndex);
 });
@@ -51,6 +47,4 @@ app.get('*', (req, res) => {
 /* Kick off server */
 const port = process.env.PORT || 3000;
 
-server.listen(port, () => {
-  console.log('Listening on port', port);
-});
+server.listen(port);
