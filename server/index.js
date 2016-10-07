@@ -10,6 +10,8 @@ const expressSession=require('express-session');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const signalingServer = require('./signaling'); // WebRTC signaling server
+const dbModels = require('./db/models');
+require('dotenv').config();
 
 /* Init */
 const app = express();
@@ -18,9 +20,7 @@ signalingServer.listen(server);
 require("dotenv").config();
 
 /* DB  */
-const users = require('./db/models').users;
-const instruments = require('./db/models').instruments;
-const PrivateRooms = require('./db/models').PrivateRooms;
+const { users, instruments, PrivateRooms } = dbModels;
 
 /* Middleware */
 app.use(cookieParser());
