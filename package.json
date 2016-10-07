@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "Play digital instruments, like Jam with Chrome",
   "main": "server/index.js",
-  "engine": { "node" : ">=6.4.0" },
+  "engine": {
+    "node": ">=6.4.0"
+  },
   "scripts": {
     "prestart": "npm install",
     "start": "npm run front-end & npm run back-end",
@@ -11,7 +13,8 @@
     "back-end": "nodemon server/index.js",
     "lint": "eslint",
     "build": "webpack",
-    "start:prod": "bash scripts/start.sh"
+    "start:prod": "bash scripts/start.sh",
+    "db:connect": "psql -d reprise_development -U reprise"
   },
   "repository": {
     "type": "git",
@@ -49,10 +52,10 @@
     "jquery-ui": "^1.12.0",
     "material-ui": "^0.15.4",
     "morgan": "^1.7.0",
-    "mysql": "^2.11.1",
     "nuka-carousel": "^2.0.3",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
+    "pg": "^6.1.0",
     "react": "^15.3.0",
     "react-copy-to-clipboard": "^4.2.3",
     "react-dom": "^15.3.0",
