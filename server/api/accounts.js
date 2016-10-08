@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { hasSession, clearSession, createSession } = require('../auth/sessionHelpers');
-const { users, instruments } = require('../db/models');
+const { User, Instrument } = require('../db/models');
 
 // GET `/api/accounts/logout`
 module.exports.logout = (req, res) => {
@@ -13,24 +13,23 @@ module.exports.logout = (req, res) => {
 
 // POST `/api/accounts/login`
 module.exports.login = (req, res) => {
-  const { user, pass } = req.body;
+  const { username, password } = req.body;
 
+  // TODO: eager load the user instruments
   users.findOne({
-    where: {
-      userName: user
-    }
+    where: { name: username }
   }).then(person => {
     if (!person) {
-      res.redirect('/api/accounts/login');
+      res.status(400).json('Wrong username/password combination');
     } else {
-      bcrypt.compare(pass, user.hash, (err, matches) => {
+      bcrypt.compare(password, person.hashed_password, (err, matches) => {
         if (!matches) {
-          res.redirect('/api/accounts/login');
+          res.status(400).json('Wrong username/password combination');
         } else {
-          instruments.findAll({ where: { userName: person.userName }})
+          Instrument.findAll({ where: { user_id: person.id }})
             .then(collection => {
               const userInstruments = collection.map(inst => inst.dataValues);
-              createSession(req, user);
+              createSession(req, username);
               res.status(200).json(userInstruments);
             });
         }
@@ -41,24 +40,24 @@ module.exports.login = (req, res) => {
 
 // POST `/api/accounts`
 module.exports.signup = (req, res) => {
-  const userName = req.body.user; // TODO: refactor client to send better-named parameters
-  const password = req.body.pass;
+  const { username, password } = req.body;
 
-  users.findOne({ where: { userName } })
+  User.findOne({ where: { name: username } })
     .then(user => {
       if (user) {
-        res.status(200).json('User already exists by the name', userName);
+        const msg = `User already exists by the name, ${username}`;
+        res.status(400).json(msg);
       } else {
         // TODO: user asynchronous methods instead
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password, salt);
 
-        users.create({
-          userName,
-          password: hash,
+        User.create({
+          name: username,
+          hashed_password: hash,
           salt,
-        }).then(entry => {
-          createSession(req, userName);
+        }).then(newUser => {
+          createSession(req, newUser.name);
           // TODO: redirect user somewhere cool
           res.status(201).json('Successfully signed up');
         });
