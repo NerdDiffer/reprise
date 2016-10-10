@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import shortid from 'shortid';
 import $ from 'jquery';
+import { listPrivateRooms, createPrivateRoom } from '../utils/api';
 
 // Material UI
 import RaisedButton from 'material-ui/RaisedButton';
@@ -81,11 +82,10 @@ class CreateOrJoin extends Component {
 
     // get private rooms from server/db if user is logged in
     if (this.props.loggedIn) {
-      $.get('/api/rooms')
-        .then((privateRooms) => {
-          this.setState({
-            privateRooms
-          });
+      listPrivateRooms()
+        .then(data => {
+          const privateRooms = data[0] === null ? [] : data;
+          this.setState({ privateRooms });
         });
     }
   }
@@ -161,17 +161,17 @@ class CreateOrJoin extends Component {
       roomName = `${shortid.generate()}-${shortid.generate()}`;
     }
     // send server the roomname.  Username is taken from session
-    $.post('/api/rooms', { roomName }, (res) => {
-      if (res !== 'OK') {
-        // console.log(res);
-      } else {
+    return createPrivateRoom({ name: roomName })
+      .then(res => {
         const data = {
           roomId: roomName,
-          isPrivate: true,
+          isPrivate: true
         };
         this.props.socket.emit('create room', data);
-      }
-    });
+      })
+      .catch(err => {
+        console.log('Error in creating private room', err);
+      });
   }
 
   handleCreatePrivateRoomChange(e) {

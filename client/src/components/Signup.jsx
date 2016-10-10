@@ -4,20 +4,23 @@ import TextField from 'material-ui/TextField';
 import $ from "jquery";
 import { Link } from 'react-router';
 import { showErrorMessage } from '../utils/helperFunctions';
+import { postToSignup } from '../utils/api';
 
 class Signup extends Component {
   helperSignup() {
     const username = $('#UserNameSignUp').val();
     const password = $('#UserNamePass').val();
 
-    $.post("/api/accounts/", { username, password }, (resp) => {
-      if (resp === "SuccessSignup") {
+    return postToSignup({ username, password })
+      .then(result => {
         this.props.logIn(username, []);
         this.context.router.push('/');
-      } else {
+        return;
+      })
+      .catch(err => {
         showErrorMessage("#SIMessages", 'Username Taken', "badSignUp");
-      }
-    });
+        return;
+      });
   }
 
 

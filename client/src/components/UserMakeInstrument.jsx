@@ -12,6 +12,7 @@ import Paper from 'material-ui/Paper';
 
 // Utils
 import { showErrorMessage, mapIdsToKeys, mapKeysToIds, envelopeValue } from '../utils/helperFunctions';
+import { getUserInfo } from '../utils/api';
 
 class UserMakeInstrument extends Component {
 
@@ -48,10 +49,9 @@ class UserMakeInstrument extends Component {
       this.sampleSound();
     });
 
-    $.get("/api/misc/getUserInfo", (resp, err) => {
-      if (resp[0] === null) {
-        console.log('youre not logged in!');
-        this.context.router.push("login");
+    getUserInfo(result => {
+      if (result.status !== 200) {
+        this.context.router.push('login'); // go back to login page
       }
     });
   }

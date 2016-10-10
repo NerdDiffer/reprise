@@ -4,6 +4,7 @@ import TextField from 'material-ui/TextField';
 import { Link } from 'react-router';
 import $ from 'jquery';
 import { showErrorMessage } from '../utils/helperFunctions';
+import { postToLogin } from '../utils/api';
 
 class Login extends Component {
 
@@ -11,14 +12,16 @@ class Login extends Component {
     const username = $('#UserNameLogin').val();
     const password = $('#UserNamePass').val();
 
-    $.post("/api/accounts/login", { username, password }, (resp) => {
-      if (typeof resp !=='string') {
-        this.props.logIn(username, resp);
+    return postToLogin({ username, password })
+      .then(result => {
+        this.props.logIn(username, result);
         this.context.router.push('/');
-      } else {
+        return;
+      })
+      .catch(err => {
         showErrorMessage("#LIMessages", 'Bad login', "badLogin");
-      }
-    });
+        return;
+      });
   }
 
   render() {

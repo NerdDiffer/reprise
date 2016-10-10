@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
 import { Link } from 'react-router';
 import NavMenuIcon from './NavMenuIcon';
+import { getLogout } from '../../utils/api';
 
 class AppNavBar extends Component {
   constructor(props, context) {
@@ -13,9 +14,8 @@ class AppNavBar extends Component {
   }
 
   clearSessions() {
-    $.get("/api/accounts/logout", (resp, err) => {
-      this.logOut();
-    });
+    getLogout()
+      .then(() => this.logOut());
   }
 
   // this is written so that passport can do auth and not throw a react warning
