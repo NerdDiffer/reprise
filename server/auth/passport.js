@@ -1,6 +1,6 @@
 const passport = require('passport');
 const { Strategy } = require('passport-facebook');
-const { users } = require('./db/models');
+const { User } = require('../db/models');
 require('dotenv').config();
 
 const { client_Id, client_Secret, callbackURL } = process.env;
@@ -12,18 +12,18 @@ const fbConfig = {
 };
 
 passport.use(new Strategy(fbConfig, (accessToken, refreshToken, profile, done) => {
-  users.findAll({ where: { facebookId: profile.id } })
+  User.findOne({ where: { facebook_id: profile.id } })
     .then(user => {
-      if (user.length > 0) {
+      if (user) {
         return done(null, user);
       } else {
-        return users.create({
-          userName: `${profile.displayName}`,
-          password: "N/A",
-          facebookId: profile.id,
+        return User.create({
+          name: `${profile.displayName}`,
+          password: null,
+          facebook_id: profile.id,
           token: accessToken,
-        }).then(entry => {
-          return done(null, entry.dataValues.id);
+        }).then(newUser => {
+          return done(null, newUser.dataValues.id);
         });
       }
     });
@@ -37,7 +37,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  users.findAll({ where: { id } })
+  User.findAll({ where: { id } })
     .then(found => {
       const values = found[0].dataValues;
       done(null, id);

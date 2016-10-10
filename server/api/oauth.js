@@ -8,5 +8,5 @@ module.exports.facebookCallback = (
   passport.authenticate('facebook', {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login'
-  });
+  })
 );

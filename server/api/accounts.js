@@ -16,7 +16,7 @@ module.exports.login = (req, res) => {
   const { username, password } = req.body;
 
   // TODO: eager load the user instruments
-  users.findOne({
+  User.findOne({
     where: { name: username }
   }).then(person => {
     if (!person) {
@@ -58,8 +58,7 @@ module.exports.signup = (req, res) => {
           salt,
         }).then(newUser => {
           createSession(req, newUser.name);
-          // TODO: redirect user somewhere cool
-          res.status(201).json('Successfully signed up');
+          res.redirect('/');
         });
       }
     });
