@@ -7,15 +7,10 @@ module.exports.createPrivateRoom = (req, res) => {
     res.status(400).json('You must be logged in');
   } else {
     const { name } = req.body;
+    const user_id = readSession(req) || req.session.passport.user;
 
-    User.findOne({
-      where: { name: readSession(req) }
-    })
+    User.findById(user_id)
     .then(user => {
-      // if query came back empty handed then user must be logged in via
-      // facebook,  and their id in schema is stored in passport
-      const user_id = user ? user.id : req.session.passport.user;
-
       return PrivateRoom.create({
         url: name,
         user_id
@@ -30,25 +25,18 @@ module.exports.createPrivateRoom = (req, res) => {
 
 // GET `/api/rooms/`
 module.exports.listPrivateRooms = (req, res) => {
-  // TODO: see if clients w/o accounts are using this endpoint
-  // If not, then check if client is logged in first before moving on.
-  // is it not a facebook user?
-  User.findOne({
-    where: {
-      name: readSession(req)
-    }
-  })
-  .then(user => {
-    // if query came back empty handed then user must be logged in via
-    // facebook, and their id in schema is stored in passport
-    const user_id = user ? user.id : req.session.passport.user;
+  if (!isLoggedIn(req)) {
+    res.status(400).json('You must be logged in');
+  } else {
+    const user_id = readSession(req) || req.session.passport.user;
 
-    return PrivateRoom.findAll({
-      where: { user_id }
+    User.findById(user_id)
+    .then(user => {
+      return PrivateRoom.findAll({ where: { user_id: user.id } });
+    })
+    .then(privateRooms => {
+      const urls = privateRooms.map(room => room.url);
+      res.status(200).json(urls);
     });
-  })
-  .then(privateRooms => {
-    const urls = privateRooms.map(room => room.url);
-    res.status(200).json(urls);
-  });
+  }
 };

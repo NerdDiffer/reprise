@@ -1,4 +1,4 @@
-const SESSION_KEY = 'userName';
+const SESSION_KEY = 'user_id';
 
 const readSession = req => {
   return req.session[SESSION_KEY];

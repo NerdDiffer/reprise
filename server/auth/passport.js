@@ -5,42 +5,44 @@ require('dotenv').config();
 
 const { client_Id, client_Secret, callbackURL } = process.env;
 
-const fbConfig = {
+/* Strategy Configuration */
+// https://github.com/jaredhanson/passport-facebook
+
+const strategyParams = {
   clientID: client_Id,
   clientSecret: client_Secret,
   callbackURL: callbackURL
 };
 
-passport.use(new Strategy(fbConfig, (accessToken, refreshToken, profile, done) => {
-  User.findOne({ where: { facebook_id: profile.id } })
-    .then(user => {
-      if (user) {
-        return done(null, user);
-      } else {
-        return User.create({
-          name: `${profile.displayName}`,
-          password: null,
-          facebook_id: profile.id,
-          token: accessToken,
-        }).then(newUser => {
-          return done(null, newUser.dataValues.id);
-        });
-      }
-    });
-}
-));
+const verifyStrategy = (accessToken, refreshToken, profile, done) => {
+  return User.findOrCreate({
+    where: { facebook_id: profile.id },
+    defaults: {
+      name: profile.displayName,
+      hashed_password: null,
+      token: accessToken,
+      salt: null
+    }
+  })
+  .then(user => done(null, user))
+  .catch(err => done(err));
+};
 
-// serialize and deserialize
+const strategy = new Strategy(strategyParams, verifyStrategy);
+
+passport.use(strategy);
+
+/* Serialization, Deserializtion */
+
 passport.serializeUser((user, done) => {
   const final = typeof user==="number"?user:user[0].dataValues.id;
   done(null, final);
 });
 
 passport.deserializeUser((id, done) => {
-  User.findAll({ where: { id } })
-    .then(found => {
-      const values = found[0].dataValues;
-      done(null, id);
+  User.findById(id)
+    .then(user => {
+      done(null, user.id);
     });
 });
 

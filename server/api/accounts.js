@@ -29,7 +29,7 @@ module.exports.login = (req, res) => {
           Instrument.findAll({ where: { user_id: person.id }})
             .then(collection => {
               const userInstruments = collection.map(inst => inst.dataValues);
-              createSession(req, username);
+              createSession(req, person.id);
               res.status(200).json(userInstruments);
             });
         }
@@ -57,7 +57,7 @@ module.exports.signup = (req, res) => {
           hashed_password: hash,
           salt,
         }).then(newUser => {
-          createSession(req, newUser.name);
+          createSession(req, newUser.id);
           res.redirect('/');
         });
       }
