@@ -1,8 +1,10 @@
 'use strict';
 
+const tableName = 'private_rooms';
+
 module.exports = {
   up: function(queryInterface, Sequelize) {
-    return queryInterface.createTable('PrivateRooms', {
+    return queryInterface.createTable(tableName, {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -33,6 +35,6 @@ module.exports = {
     });
   },
   down: function(queryInterface, Sequelize) {
-    return queryInterface.dropTable('PrivateRooms');
+    return queryInterface.dropTable(tableName);
   }
 };

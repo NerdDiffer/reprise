@@ -1,8 +1,10 @@
 'use strict';
 
+const tableName = 'instruments';
+
 module.exports = {
   up: function(queryInterface, Sequelize) {
-    return queryInterface.createTable('Instruments', {
+    return queryInterface.createTable(tableName, {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,7 +14,7 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Users', // name of table
+          model: 'users', // name of table
           key: 'id'
         },
         onUpdate: 'cascade', // default
@@ -36,6 +38,6 @@ module.exports = {
     });
   },
   down: function(queryInterface, Sequelize) {
-    return queryInterface.dropTable('Instruments');
+    return queryInterface.dropTable(tableName);
   }
 };

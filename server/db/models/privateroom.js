@@ -10,7 +10,8 @@ module.exports = function(sequelize, DataTypes) {
         const { PrivateRoom, User } = models;
         PrivateRoom.belongsTo(User, { foreignKey: 'user_id' });
       }
-    }
+    },
+    tableName: 'private_rooms'
   });
 
   return PrivateRoom;

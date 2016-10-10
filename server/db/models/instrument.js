@@ -12,7 +12,8 @@ module.exports = function(sequelize, DataTypes) {
         const { Instrument, User } = models;
         Instrument.belongsTo(User, { foreignKey: 'user_id' });
       }
-    }
+    },
+    tableName: 'instruments'
   });
 
   return Instrument;

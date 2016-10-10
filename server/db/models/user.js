@@ -15,7 +15,8 @@ module.exports = function(sequelize, DataTypes) {
         User.hasMany(Instrument, { foreignKey: 'user_id' });
         User.hasMany(PrivateRoom, { foreignKey: 'user_id' });
       }
-    }
+    },
+    tableName: 'users'
   });
 
   return User;
