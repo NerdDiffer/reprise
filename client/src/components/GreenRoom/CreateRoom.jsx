@@ -7,6 +7,19 @@ import MenuItem from 'material-ui/MenuItem';
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import Dialog from 'material-ui/Dialog';
 
+const styles = {
+  main: {
+    width: '80%',
+    position: 'relative',
+    margin: '0 auto',
+    textAlign: 'center',
+  },
+  radioButton: {
+    group: { width: '50%', margin: '0 auto', display: 'flex' },
+    button: { width: '45%', margin: '0 auto', marginBottom: 16 }
+  }
+};
+
 class CreateRoom extends Component {
   constructor() {
 
@@ -15,12 +28,7 @@ class CreateRoom extends Component {
   render() {
     <div
       id="create-room-view"
-      style={{
-        width: '80%',
-        position: 'relative',
-        margin: '0 auto',
-        textAlign: 'center',
-      }}
+      style={styles.main}
     >
       {
         !this.state.togglePrivateRoom
@@ -56,18 +64,18 @@ class CreateRoom extends Component {
       <RadioButtonGroup
         name="shipSpeed"
         onChange={this.handlePrivateRoomToggle}
-        style={{ width: '50%', margin: '0 auto', display: 'flex' }}
+        style={styles.radioButton.group}
         valueSelected={this.state.radioButtonVal}
       >
         <RadioButton
           value="public"
           label="Public"
-          style={{ width: '45%', margin: '0 auto', marginBottom: 16 }}
+          style={styles.radioButton.button}
         />
         <RadioButton
           value="private"
           label="Private"
-          style={{ width: '45%', margin: '0 auto', marginBottom: 16 }}
+          style={styles.radioButton.button}
         />
       </RadioButtonGroup>
       {
