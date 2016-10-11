@@ -13,8 +13,11 @@
     "back-end": "nodemon server/index.js",
     "lint": "eslint",
     "build": "webpack",
-    "start:prod": "bash scripts/start.sh",
-    "db:connect": "psql -d reprise_development -U reprise"
+    "start:prod": "$SHELL scripts/deploy/start.sh",
+    "db:connect": "psql -d reprise_development -U reprise",
+    "db:reset": "$SHELL scripts/db/reset.sh",
+    "deploy:archive": "$SHELL scripts/deploy/archive.sh",
+    "deploy:install": "$SHELL scripts/deploy/install.sh"
   },
   "repository": {
     "type": "git",

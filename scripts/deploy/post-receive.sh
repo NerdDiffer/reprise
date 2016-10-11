@@ -17,5 +17,5 @@ git --work-tree=$WORK_TREE --git-dir=$GIT_DIR checkout -f
 
 cd $WORK_TREE
 # see note above regarding the sudo
-sudo bash scripts/install.sh
-sudo bash scripts/start.sh
+sudo bash scripts/deploy/install.sh
+sudo bash scripts/deploy/start.sh
