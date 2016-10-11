@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Table, TableBody, TableFooter, TableHeader,
         TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 
@@ -25,7 +25,7 @@ const JoinRoom = ({ rooms, handleRowClick }) => {
     </TableRow>
   );
 
-  return(
+  return (
     <div
       id="join-room-view"
       style={styles.main}
@@ -85,7 +85,7 @@ const JoinRoom = ({ rooms, handleRowClick }) => {
       </div>
     </div>
   );
-}
+};
 
 JoinRoom.propTypes = {
   rooms: React.PropTypes.array.isRequired,

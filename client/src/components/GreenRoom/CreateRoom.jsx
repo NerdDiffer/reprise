@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import shortid from 'shortid';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import Popover from 'material-ui/Popover';
@@ -6,6 +7,7 @@ import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import Dialog from 'material-ui/Dialog';
+import { createPrivateRoom } from '../../utils/api';
 
 const styles = {
   main: {
@@ -309,7 +311,7 @@ class CreateRoom extends Component {
       </Dialog>
     );
 
-    return(
+    return (
       <div
         id="create-room-view"
         style={styles.main}

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import shortid from 'shortid';
 import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
-import { listPrivateRooms, createPrivateRoom } from '../../utils/api';
+import CreateRoom from './CreateRoom';
+import JoinRoom from './JoinRoom';
+import { listPrivateRooms } from '../../utils/api';
 
 class GreenRoom extends Component {
   constructor(props) {
