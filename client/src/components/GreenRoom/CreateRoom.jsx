@@ -26,27 +26,9 @@ class CreateRoom extends Component {
   }
 
   render() {
-    <div
-      id="create-room-view"
-      style={styles.main}
-    >
-      {
-        !this.state.togglePrivateRoom
-        ?
-          <div className="create-public-room" style={{ margin: '1% auto' }}>
-            <form onSubmit={this.handleCreateRoomSubmit}>
-              <TextField
-                hintText="Enter a Room Name..."
-                onChange={this.handleCreateRoomChange}
-                errorText={this.checkErrorStates()}
-              />
-              <RaisedButton
-                onClick={this.handleCreateRoomSubmit}
-                label="Create Public Room"
-              />
-            </form>
-          </div>
-        :
+    const renderCreateRoom = privateRoom => {
+      if (privateRoom) {
+        return (
           <div className="create-private-room" style={{ margin: '1% auto' }}>
             <form onSubmit={this.handleCreatePrivateRoomSubmit}>
               <TextField
@@ -60,83 +42,119 @@ class CreateRoom extends Component {
               />
             </form>
           </div>
+        );
+      } else {
+        return (
+          <div className="create-public-room" style={{ margin: '1% auto' }}>
+            <form onSubmit={this.handleCreateRoomSubmit}>
+              <TextField
+                hintText="Enter a Room Name..."
+                onChange={this.handleCreateRoomChange}
+                errorText={this.checkErrorStates()}
+              />
+              <RaisedButton
+                onClick={this.handleCreateRoomSubmit}
+                label="Create Public Room"
+              />
+            </form>
+          </div>
+        );
       }
-      <RadioButtonGroup
-        name="shipSpeed"
-        onChange={this.handlePrivateRoomToggle}
-        style={styles.radioButton.group}
-        valueSelected={this.state.radioButtonVal}
-      >
-        <RadioButton
-          value="public"
-          label="Public"
-          style={styles.radioButton.button}
-        />
-        <RadioButton
-          value="private"
-          label="Private"
-          style={styles.radioButton.button}
-        />
-      </RadioButtonGroup>
-      {
-        !this.state.togglePrivateRoom
-        ?
+    };
+
+    const renderRoomDescription = privateRoom => {
+      if (privateRoom) {
+        return (
+          <div>
+            Noone will be able to join this room unless you give them the link personally.
+            We will store the url created for you and you can reuse the room as long as you are signed in.
+            Name it anything you want!
+          </div>
+        );
+      } else {
+        return (
           <div>
             This room is open to the public for anyone to join.
-              It will be displayed in the open room table below.
-              If you can't think of a good room name,
-               just click "Create Room broh" and we will provide you with a random room name.
+            It will be displayed in the open room table below.
+            If you can't think of a good room name,
+            just click "Create Room broh" and we will provide you with a random room name.
           </div>
-        :
-          <div>
-          Noone will be able to join this room unless you give them the link personally.
-            We will store the url created for you and you can reuse the room as long as you are signed in.
-              Name it anything you want!
-          </div>
+        );
       }
-      {
-        this.props.loggedIn
-        ?
-          <div className="old-private-rooms" style={{ margin: '2% auto' }}>
-            <RaisedButton
-              onTouchTap={this.handleTapPrivRoom}
-              label="Click to view your old private rooms"
-            />
-            <Popover
-              open={this.state.openPrivRoomMenu}
-              anchorEl={this.state.anchorEl}
-              anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-              targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-              onRequestClose={this.handleTapPrivRoomClose}
-            >
-              <Menu onItemTouchTap={this.handleSendToPrivRoom}>
-                {
-                  this.state.privateRooms.map((room, key) => (
-                    <MenuItem value={room.slice(9)} primaryText={room.slice(9)} key={key} />
-                  ))
-                }
-              </Menu>
-            </Popover>
-          </div>
-        : null
-      }
-      {
-        this.state.showMustBeLoggedIn
-        ?
-          <Dialog
-            title="You must be logged in to use this feature!"
-            open={this.state.showMustBeLoggedIn}
-            onRequestClose={this.handleCloseMustBeLoggedIn}
+    };
+
+    const renderPrivateRoomsList = () => {
+      const listOfRooms = this.state.privateRooms.map((room, key) => (
+        <MenuItem
+          value={room.slice(9)}
+          primaryText={room.slice(9)}
+          key={key}
+        />
+      ));
+
+      return (
+        <div className="old-private-rooms" style={{ margin: '2% auto' }}>
+          <RaisedButton
+            onTouchTap={this.handleTapPrivRoom}
+            label="Click to view your old private rooms"
+          />
+          <Popover
+            open={this.state.openPrivRoomMenu}
+            anchorEl={this.state.anchorEl}
+            anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+            targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+            onRequestClose={this.handleTapPrivRoomClose}
           >
-            Click outside the box to close thise window or click here to go to login page <RaisedButton
-              onClick={this.navigateToLogin}
-              label="Login"
-            />
-          </Dialog>
-        :
-          null
-      }
-    </div>
+            <Menu onItemTouchTap={this.handleSendToPrivRoom}>
+              {listOfRooms}
+            </Menu>
+          </Popover>
+        </div>
+      );
+    };
+
+    const renderDialog = () => (
+      <Dialog
+        title="You must be logged in to use this feature!"
+        open={this.state.showMustBeLoggedIn}
+        onRequestClose={this.handleCloseMustBeLoggedIn}
+      >
+        Click outside the box to close thise window or click here to go to login page
+        <RaisedButton
+          onClick={this.navigateToLogin}
+          label="Login"
+        />
+      </Dialog>
+    );
+
+    return(
+      <div
+        id="create-room-view"
+        style={styles.main}
+      >
+        {renderCreateRoom(this.state.togglePrivateRoom)}
+        <RadioButtonGroup
+          name="shipSpeed"
+          onChange={this.handlePrivateRoomToggle}
+          style={styles.radioButton.group}
+          valueSelected={this.state.radioButtonVal}
+        >
+          <RadioButton
+            value="public"
+            label="Public"
+            style={styles.radioButton.button}
+          />
+          <RadioButton
+            value="private"
+            label="Private"
+            style={styles.radioButton.button}
+          />
+        </RadioButtonGroup>
+        {renderRoomDescription(this.state.togglePrivateRoom)}
+        {this.props.loggedIn ? renderPrivateRoomsList() : null}
+        {this.state.showMustBeLoggedIn ? renderDialog() : null}
+      </div>
+    );
   }
 }
 
