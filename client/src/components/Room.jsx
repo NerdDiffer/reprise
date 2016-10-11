@@ -15,6 +15,7 @@ import { mapKeysToIds, mapPianoKeysToIds, mapBlackPianoKeysToIds, envelopeValue 
 class Room extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       connected: connectionManager.isConnected(),
       instrument: instruments[0],
@@ -70,74 +71,76 @@ class Room extends React.Component {
   }
 
   handleKeypress(e) {
+    let combo, pd, type;
+
     if (store[this.state.instrument]) {
-      // console.log('e.key', e.key);
+      // Play a sound
       store[this.state.instrument](e.key);
 
-      const keyBlack=e.key.toUpperCase();
+      const keyBlack = e.key.toUpperCase();
 
+      // Handle visual effects
       if (mapPianoKeysToIds[keyBlack]) {
-            $(mapPianoKeysToIds[keyBlack]).animate({
-              backgroundColor: "black",
-            }, 20).animate({
-              backgroundColor: "white",
-            }, 20);
+        $(mapPianoKeysToIds[keyBlack]).animate({
+          backgroundColor: "black",
+        }, 20).animate({
+          backgroundColor: "white",
+        }, 20);
       }
 
       if (mapBlackPianoKeysToIds[keyBlack]) {
-            $(mapBlackPianoKeysToIds[keyBlack]).animate({
-              backgroundColor: "white",
-            }, 20).animate({
-              backgroundColor: "black",
-            }, 20);
+        $(mapBlackPianoKeysToIds[keyBlack]).animate({
+          backgroundColor: "white",
+        }, 20).animate({
+          backgroundColor: "black",
+        }, 20);
       }
 
-
-      if (this.state.startJam) {
-        connectionManager.sendMessage(JSON.stringify({
-          instrument: this.state.instrument,
-          keyPressed: e.key,
-          notesToPlay: [null, null, null],
-        }));
-      }
+      // prepare values for sending message to peers
+      combo = null, pd = null, type = null;
     } else {
-      const instMap = this.state.mapping;
+      const mapping = this.state.mapping;
       const keyPressed = e.key.toUpperCase();
-      const sequence = JSON.parse(instMap[keyPressed]);
+
+      const sequence = JSON.parse(mapping[keyPressed]);
       const note = sequence[1];
       const octave = sequence[2];
-      const pd = sequence[3];
-      const type = sequence[4];
-      const combo = `${note}${octave}`;
-      // console.log(sequence, note, octave, pd, type, combo);
+
+      // prepare values for sending message to peers
+      pd = sequence[3];
+      type = sequence[4];
+      combo = `${note}${octave}`;
+
+      // configure sound
       const config = {
-        pitchDecay: pd||0.1,
+        pitchDecay: pd || 0.1,
         octaves: 7,
-        oscillator: {
-          type,
-        },
+        oscillator: { type },
         envelope: envelopeValue
       };
-      // console.log(instMap, keyPressed, note, octave, pd, type, combo);
 
       const zimit = new MembraneSynth(config).toMaster();
       zimit.triggerAttackRelease(combo, '8n');
-      // console.log('e info', e.which, e.key);
 
-      const keyBlack=e.key.toUpperCase();
+      const keyBlack = e.key.toUpperCase();
+
+      // handle visual effects
       $(mapKeysToIds[keyBlack]).animate({
         backgroundColor: "black",
       }, 20).animate({
         backgroundColor: "white",
       }, 20);
+    }
 
-      if (this.state.startJam) {
-        connectionManager.sendMessage(JSON.stringify({
-          instrument: this.state.instrument,
-          keyPressed: e.key,
-          notesToPlay: [combo, pd, type],
-        }));
-      }
+    if (this.state.startJam) {
+      const msg = {
+        instrument: this.state.instrument,
+        keyPressed: e.key,
+        notesToPlay: [combo, pd, type],
+      };
+      const json = JSON.stringify(msg);
+
+      connectionManager.sendMessage(json);
     }
   }
 
