@@ -1,16 +1,20 @@
+/* global window */
 // Modules
 import React from 'react';
-import { MembraneSynth } from "tone";
+import { MembraneSynth } from 'tone';
 import $ from 'jquery';
 // Components
 import SelectInstrument from './SelectInstrument';
 import JamRoom from './JamRoom';
 import Help from './Help';
-
-// Util
 import connectionManager from '../rtc';
 import { store, instruments } from '../instruments/store';
-import { mapKeysToIds, mapPianoKeysToIds, mapBlackPianoKeysToIds, envelopeValue } from '../utils/helperFunctions';
+import {
+  mapKeysToIds,
+  mapPianoKeysToIds,
+  mapBlackPianoKeysToIds,
+  envelopeValue
+} from '../utils/helperFunctions';
 
 class Room extends React.Component {
   constructor(props) {
@@ -38,8 +42,8 @@ class Room extends React.Component {
   componentDidMount() {
     connectionManager.setup(this.props.params.roomId);
     connectionManager.onStatusChange(this.updateConnection);
-    // this will update uniue user instruments with those made in the same session.
-    // event listener for keypress
+    // This will update unique user instruments with those made in the same
+    // session. Event listener for keypress
     window.addEventListener('keypress', this.handleKeypress);
     this.props.socket.emit('add as listener', this.props.params.roomId);
   }
@@ -73,7 +77,9 @@ class Room extends React.Component {
   }
 
   handleKeypress(e) {
-    let combo, pd, type;
+    let combo;
+    let pd;
+    let type;
 
     if (store[this.state.instrument]) {
       // Play a sound
@@ -99,7 +105,9 @@ class Room extends React.Component {
       }
 
       // prepare values for sending message to peers
-      combo = null, pd = null, type = null;
+      combo = null;
+      pd = null;
+      type = null;
     } else {
       const mapping = this.state.mapping;
       const keyPressed = e.key.toUpperCase();
@@ -162,7 +170,7 @@ class Room extends React.Component {
         const config = {
           pitchDecay: info[1] || 0.1,
           octaves: 7,
-          oscillator: { type: info[2] }
+          oscillator: { type: info[2] },
           envelope: envelopeValue
         };
 
@@ -214,7 +222,7 @@ class Room extends React.Component {
   }
 
   _setMapping(index) {
-    const mappings = this.props.extraInstruments.map(a => ({
+    const mappings = this.props.userInstruments.map(a => ({
       A: typeof a === 'string' ? JSON.parse(a.A) : a.A,
       S: typeof a === 'string' ? JSON.parse(a.S) : a.S,
       D: typeof a === 'string' ? JSON.parse(a.D) : a.D,
@@ -232,9 +240,9 @@ class Room extends React.Component {
   }
 
   _setInstrument(index) {
-    const namesOfExtraInstruments = this.props.extraInstruments.map(a => {
+    const namesOfExtraInstruments = this.props.userInstruments.map(a => {
       const name = a.instrumentName || a.name;
-      return `Your Instrument: ${name}`
+      return `Your Instrument: ${name}`;
     });
     const list = instruments.concat(namesOfExtraInstruments);
     const newInstrument = list[index];
@@ -245,8 +253,8 @@ class Room extends React.Component {
   }
 
   selectInstrument(index) {
-    _setMapping(index);
-    _setInstrument(index);
+    this._setMapping(index);
+    this._setInstrument(index);
 
     if (this.state.connected) {
       const instrumentData = {
@@ -260,7 +268,7 @@ class Room extends React.Component {
   }
 
   render() {
-    console.log('current instrument', this.state.instrument);
+    // console.log('current instrument', this.state.instrument);
 
     return (
       <div>
