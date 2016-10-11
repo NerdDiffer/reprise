@@ -87,4 +87,9 @@ const JoinRoom = ({ rooms, handleRowClick }) => {
   );
 }
 
+JoinRoom.propTypes = {
+  rooms: React.PropTypes.array.isRequired,
+  handleRowClick: React.PropTypes.func.isRequired
+};
+
 export default JoinRoom;
