@@ -51,6 +51,8 @@ class Room extends React.Component {
     this.props.socket.removeListener('receive peer info', this.handlePeerInfo);
   }
 
+  // TODO: Search commits & logs to see why its invocation went away.
+  // Invoked this method from handleStart to see its original effects.
   setSocketListeners() {
     this.props.socket.on('invalid room', () => {
       this.context.router.push('/invalid');
@@ -146,21 +148,24 @@ class Room extends React.Component {
 
   handleStart() {
     this.setState({ startJam: true });
-    connectionManager.onMessage(data => {
-      data = JSON.parse(data);
+
+    // When receiving message through WebRTC data channel, play a sound
+    connectionManager.onMessage(json => {
+      const data = JSON.parse(json);
+
       if (store[data.instrument]) {
         store[data.instrument](data.keyPressed);
       } else {
+        // fallback sounds
         const info = data.notesToPlay;
         const combo = info[0];
         const config = {
-          pitchDecay: info[1]||0.1,
+          pitchDecay: info[1] || 0.1,
           octaves: 7,
-          oscillator: {
-            type: info[2],
-          },
+          oscillator: { type: info[2] }
           envelope: envelopeValue
         };
+
         const zimit = new MembraneSynth(config).toMaster();
         zimit.triggerAttackRelease(combo, '8n');
       }
@@ -171,6 +176,7 @@ class Room extends React.Component {
       id: connectionManager.id(),
       instrument: this.state.instrument
     });
+    // TODO: figure out if this method is necessary or not
     // this.setSocketListeners();
   }
 
