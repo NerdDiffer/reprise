@@ -21,8 +21,190 @@ const styles = {
 };
 
 class CreateRoom extends Component {
-  constructor() {
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      createRoomVal: '',
+      createPrivRoomVal: '',
+      showValidateError: false,
+      togglePrivateRoom: false,
+      radioButtonVal: 'public',
+      showMustBeLoggedIn: false,
+      openPrivRoomMenu: false,
+      anchorEl: null
+    };
+
+    // Create room form logic
+    this.handleCreateRoomSubmit = this.handleCreateRoomSubmit.bind(this);
+    this.handleCreateRoomChange = this.handleCreateRoomChange.bind(this);
+    this.handleCreatePrivateRoomSubmit = this.handleCreatePrivateRoomSubmit.bind(this);
+    this.handleCreatePrivateRoomChange = this.handleCreatePrivateRoomChange.bind(this);
+    this.handleSendToPrivRoom = this.handleSendToPrivRoom.bind(this);
+
+    // Toggle create public/private rooms
+    this.handlePrivateRoomToggle = this.handlePrivateRoomToggle.bind(this);
+
+    // Material UI popover logic
+    this.handleTapPrivRoom = this.handleTapPrivRoom.bind(this);
+    this.handleTapPrivRoomClose = this.handleTapPrivRoomClose.bind(this);
+
+    // Error message handlers
+    this.handleCloseMustBeLoggedIn = this.handleCloseMustBeLoggedIn.bind(this);
+    this.checkErrorStates = this.checkErrorStates.bind(this);
+  }
+
+  handleCreateRoomSubmit(e) {
+    e.preventDefault();
+
+    let roomName;
+    if (this.state.showValidateError) {
+      return;
+    }
+
+    if (this.state.createRoomVal === '') {
+      roomName = shortid.generate();
+    } else {
+      roomName = this.state.createRoomVal;
+    }
+
+    const data = {
+      roomId: roomName,
+      isPrivate: false,
+    };
+
+    this.props.socket.emit('create room', data);
+  }
+
+  // match nothing: ^(?![\s\S])
+  handleCreateRoomChange(e) {
+    if (e.target.value.match(/[^a-zA-Z1-9]+/g)) {
+      this.setState({
+        showValidateError: true,
+        createRoomVal: e.target.value,
+      });
+    } else if (this.state.showValidateError && e.target.value.match(/[^a-zA-Z1-9]+/g) === null) {
+      this.setState({
+        createRoomVal: e.target.value,
+        showValidateError: false,
+      });
+    } else {
+      this.setState({
+        createRoomVal: e.target.value,
+      });
+    }
+  }
+
+  handleCreatePrivateRoomSubmit(e) {
+    e.preventDefault();
+
+    if (this.state.showValidateError) {
+      return;
+    }
+
+    let roomName;
+
+    if (this.state.createPrivRoomVal !== '') {
+      roomName = `${shortid.generate()}-${this.state.createPrivRoomVal}`;
+    } else {
+      roomName = `${shortid.generate()}-${shortid.generate()}`;
+    }
+
+    // send server the roomname.  Username is taken from session
+    createPrivateRoom({ name: roomName })
+      .then(res => {
+        const data = {
+          roomId: roomName,
+          isPrivate: true
+        };
+        this.props.socket.emit('create room', data);
+      })
+      .catch(err => {
+        // console.log('Error in creating private room', err);
+      });
+  }
+
+  handleCreatePrivateRoomChange(e) {
+    if (e.target.value.match(/[^a-zA-Z1-9]+/g)) {
+      this.setState({
+        showValidateError: true,
+        createPrivRoomVal: e.target.value,
+      });
+    } else if (this.state.showValidateError && e.target.value.match(/[^a-zA-Z1-9]+/g) === null) {
+      this.setState({
+        createPrivRoomVal: e.target.value,
+        showValidateError: false,
+      });
+    } else {
+      this.setState({
+        createPrivRoomVal: e.target.value,
+      });
+    }
+  }
+
+  checkErrorStates() {
+    if (this.state.showValidateError) {
+      return 'Room names can only contain letters or numbers';
+    } else if (this.props.showRoomTakenMessage) {
+      return 'Room name is taken';
+    } else {
+      return false;
+    }
+  }
+
+  handleSendToPrivRoom(e, menuItem, index) {
+    e.preventDefault();
+
+    const data = {
+      roomId: this.props.privateRooms[index],
+      // userName: this.props.user,
+      isPrivate: true,
+    };
+
+    // const roomName = this.state.privateRooms[index];
+    this.props.socket.emit('create room', data);
+  }
+
+  handlePrivateRoomToggle(e, value) {
+    e.preventDefault();
+
+    if (value === 'private' && !this.props.loggedIn) {
+      this.setState({
+        togglePrivateRoom: false,
+        radioButtonVal: 'public',
+        showMustBeLoggedIn: true,
+      });
+    } else if (value === 'public') {
+      this.setState({
+        togglePrivateRoom: false,
+        radioButtonVal: 'public',
+      });
+    } else {
+      this.setState({
+        togglePrivateRoom: true,
+        radioButtonVal: 'private',
+      });
+    }
+  }
+
+  handleCloseMustBeLoggedIn() {
+    this.setState({
+      showMustBeLoggedIn: false,
+    });
+  }
+
+  handleTapPrivRoom(e) {
+    e.preventDefault();
+    this.setState({
+      openPrivRoomMenu: true,
+      anchorEl: e.currentTarget,
+    });
+  }
+
+  handleTapPrivRoomClose() {
+    this.setState({
+      openPrivRoomMenu: false,
+    });
   }
 
   render() {
@@ -84,7 +266,7 @@ class CreateRoom extends Component {
     };
 
     const renderPrivateRoomsList = () => {
-      const listOfRooms = this.state.privateRooms.map((room, key) => (
+      const listOfRooms = this.props.privateRooms.map((room, key) => (
         <MenuItem
           value={room.slice(9)}
           primaryText={room.slice(9)}
@@ -121,7 +303,7 @@ class CreateRoom extends Component {
       >
         Click outside the box to close thise window or click here to go to login page
         <RaisedButton
-          onClick={this.navigateToLogin}
+          onClick={this.props.navigateToLogin}
           label="Login"
         />
       </Dialog>
@@ -157,5 +339,13 @@ class CreateRoom extends Component {
     );
   }
 }
+
+CreateRoom.propTypes = {
+  socket: React.PropTypes.object.isRequired,
+  loggedIn: React.PropTypes.bool.isRequired,
+  privateRooms: React.PropTypes.array.isRequired,
+  showRoomTakenMessage: React.PropTypes.bool.isRequired,
+  navigateToLogin: React.PropTypes.func.isRequired
+};
 
 export default CreateRoom;
