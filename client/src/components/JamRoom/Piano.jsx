@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+/* global window, document */
+import React from 'react';
 import AudioSynth from 'audiosynth';
 import $ from 'jquery';
 
@@ -7,32 +8,28 @@ const context = new AudioContext();
 const Synth = new AudioSynth(context);
 Synth.setOscWave(1);
 
-class Piano extends Component {
+const Piano = () => (
+  <div id="userPiano">
+    <div className="key" id="1" />
+    <div className="key" id="2" />
+    <div className="key" id="3" />
+    <div className="key" id="4" />
+    <div className="key" id="5" />
+    <div className="key" id="6" />
+    <div className="key" id="7" />
+    <div className="key" id="8" />
+    <div className="key" id="9" />
+    <div className="key" id="10" />
+    <div className="blackKey" id="thir" />
+    <div className="blackKey" id="fourt" />
+    <div className="blackKey" id="fift" />
+    <div className="blackKey" id="sixt" />
+    <div className="blackKey" id="sevent" />
+    <div className="blackKey" id="eight" />
+    <div className="blackKey" id="ninet" />
+  </div>
+);
 
-  render() {
-    return (
-      <div id="userPiano">
-        <div className="key" id="1" />
-        <div className="key" id="2" />
-        <div className="key" id="3" />
-        <div className="key" id="4" />
-        <div className="key" id="5" />
-        <div className="key" id="6" />
-        <div className="key" id="7" />
-        <div className="key" id="8" />
-        <div className="key" id="9" />
-        <div className="key" id="10" />
-        <div className="blackKey" id="thir" />
-        <div className="blackKey" id="fourt" />
-        <div className="blackKey" id="fift" />
-        <div className="blackKey" id="sixt" />
-        <div className="blackKey" id="sevent" />
-        <div className="blackKey" id="eight" />
-        <div className="blackKey" id="ninet" />
-      </div>
-    );
-  }
-}
 // <div className="key" id="12" />
 
 function keyHelper(ID) {
@@ -100,4 +97,3 @@ $(document).keypress((e) => {
 });
 
 export default Piano;
-

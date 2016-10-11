@@ -7,7 +7,6 @@ import Drums from './Drums';
 import PeerBar from './PeerBar';
 import Invite from './Invite';
 import SelectInstrument from '../SelectInstrument';
-import { instruments } from '../../instruments/store';
 
 class JamRoom extends Component {
   constructor(props) {

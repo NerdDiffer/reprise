@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
-import { Buffer } from "tone";
+import $ from 'jquery'; // TODO: is `animate` from jquery or jquery-ui?
 // import { mapDrumIDToSounds } from '../utils/helperFunctions';
 
 class Drums extends Component {
   helper(ID) {
-// Run mapDrumIDToSounds
-// document.getElementById('audiotag1').play();
-
-    $(ID).animate({
-      backgroundColor: "silver",
-    }, 50).animate({
-      backgroundColor: "transparent"
-    }, 50);
+    // Run mapDrumIDToSounds
+    // document.getElementById('audiotag1').play();
+    $(ID).animate({ backgroundColor: "silver" }, 50)
+         .animate({ backgroundColor: "transparent" }, 50);
   }
 
   render() {
     return (
       <div id="userDrums">
-        <img id="cs" src="../../../style/DrumParts/completeSet.png" />
+        <img
+          role="presentation"
+          id="cs"
+          src="../../../style/DrumParts/completeSet.png"
+        />
         <div onClick={() => { this.helper("#urC"); }} id="urC" />
         <div onClick={() => { this.helper("#nextC"); }} id="nextC" />
         <div onClick={() => { this.helper("#brDrum"); }} id="brDrum" />

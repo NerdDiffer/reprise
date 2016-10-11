@@ -56,7 +56,7 @@ const PeerBubble = ({ peer, handleClick, self, extraInstruments }) => {
     </div>
   );
 
-  return(
+  return (
     <div className="peer">
       <KickDrumIcon style={styles.kickDrumIcon} />
       {peer.instrument ? renderInstrumentIcon() : renderIconButton}

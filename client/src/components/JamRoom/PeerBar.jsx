@@ -3,8 +3,8 @@ import PeerBubble from './PeerBubble';
 import { generateRange } from '../../utils/helperFunctions';
 
 const PeerBar = ({ peers, toggleInviteView, toggleSelectView, extraInstruments }) => {
-  const renderPeers = () => {
-    return peers.map((peer, index) => (
+  const renderPeers = () => (
+    peers.map((peer, index) => (
       <div key={peer.peerId}>
         <PeerBubble
           extraInstruments={extraInstruments}
@@ -14,7 +14,7 @@ const PeerBar = ({ peers, toggleInviteView, toggleSelectView, extraInstruments }
         />
       </div>
     ))
-  };
+  );
 
   const renderInvitations = () => {
     // TODO: hard-code a `MAX_PEERS` constant (where value is 4) somewhere far
