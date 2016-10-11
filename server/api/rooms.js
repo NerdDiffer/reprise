@@ -1,3 +1,4 @@
+/* eslint camelcase: 'off' */
 const { User, PrivateRoom } = require('../db/models');
 const { isLoggedIn, readSession } = require('../auth/sessionHelpers');
 
@@ -10,12 +11,12 @@ module.exports.createPrivateRoom = (req, res) => {
     const user_id = readSession(req) || req.session.passport.user;
 
     User.findById(user_id)
-    .then(user => {
-      return PrivateRoom.create({
+    .then(user => (
+      PrivateRoom.create({
         url: name,
         user_id
-      });
-    })
+      })
+    ))
     .then(newRoom => {
       const msg = `Successfully created room: ${newRoom.url}`;
       res.status(201).json(msg);
@@ -31,9 +32,9 @@ module.exports.listPrivateRooms = (req, res) => {
     const user_id = readSession(req) || req.session.passport.user;
 
     User.findById(user_id)
-    .then(user => {
-      return PrivateRoom.findAll({ where: { user_id: user.id } });
-    })
+    .then(user => (
+      PrivateRoom.findAll({ where: { user_id: user.id } })
+    ))
     .then(privateRooms => {
       const urls = privateRooms.map(room => room.url);
       res.status(200).json(urls);

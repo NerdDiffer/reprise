@@ -1,9 +1,10 @@
-const express = require('express');
+/* eslint new-cap: 'off' */
+const { Router } = require('express');
 const accounts = require('./accounts');
 const oauth = require('./oauth');
 const rooms = require('./rooms');
 
-const router = express.Router();
+const router = Router();
 
 // Accounts: `/api/accounts/`
 router.get('/api/accounts/logout', accounts.logout);

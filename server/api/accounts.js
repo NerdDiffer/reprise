@@ -26,7 +26,7 @@ module.exports.login = (req, res) => {
         if (!matches) {
           res.status(400).json('Wrong username/password combination');
         } else {
-          Instrument.findAll({ where: { user_id: person.id }})
+          Instrument.findAll({ where: { user_id: person.id } })
             .then(collection => {
               const userInstruments = collection.map(inst => inst.dataValues);
               createSession(req, person.id);

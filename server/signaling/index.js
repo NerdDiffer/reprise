@@ -1,6 +1,5 @@
 const SocketServer = require('socket.io');
 const shortid = require('shortid');
-const { Instrument } = require('../db/models');
 
 const io = new SocketServer();
 

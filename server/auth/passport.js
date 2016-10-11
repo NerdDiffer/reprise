@@ -11,11 +11,11 @@ const { client_Id, client_Secret, callbackURL } = process.env;
 const strategyParams = {
   clientID: client_Id,
   clientSecret: client_Secret,
-  callbackURL: callbackURL
+  callbackURL
 };
 
-const verifyStrategy = (accessToken, refreshToken, profile, done) => {
-  return User.findOrCreate({
+const verifyStrategy = (accessToken, refreshToken, profile, done) => (
+  User.findOrCreate({
     where: { facebook_id: profile.id },
     defaults: {
       name: profile.displayName,
@@ -25,8 +25,8 @@ const verifyStrategy = (accessToken, refreshToken, profile, done) => {
     }
   })
   .then(user => done(null, user))
-  .catch(err => done(err));
-};
+  .catch(err => done(err))
+);
 
 const strategy = new Strategy(strategyParams, verifyStrategy);
 
@@ -35,8 +35,8 @@ passport.use(strategy);
 /* Serialization, Deserializtion */
 
 passport.serializeUser((user, done) => {
-  const final = typeof user==="number"?user:user[0].dataValues.id;
-  done(null, final);
+  const id = typeof user === 'number' ? user : user[0].dataValues.id;
+  done(null, id);
 });
 
 passport.deserializeUser((id, done) => {
