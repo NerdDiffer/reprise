@@ -9,6 +9,7 @@ import routes from './routes';
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
 
-render((
-  <Router history={browserHistory} routes={routes} />
-), document.getElementById('app'));
+render(
+  <Router history={browserHistory} routes={routes} />,
+  document.getElementById('app')
+);

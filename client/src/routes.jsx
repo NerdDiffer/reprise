@@ -13,7 +13,6 @@ import Invalid from './components/Invalid';
 import Metronome from './components/Metronome';
 import BeatSequencer from './components/BeatSequencer';
 
-
 export default (
   <Route path="/" component={App}>
     <IndexRoute component={LandingPage} />

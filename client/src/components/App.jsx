@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import $ from 'jquery';
-
 import io from 'socket.io-client';
-
-// for future material ui use
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
@@ -54,17 +50,23 @@ class App extends Component {
          socket: io()
        })
     ));
+
     return (
-     <div style={{ width: '100%', height: '100%' }}>
-        <Nav logIn={this.logIn} logOut={this.logOut} user={this.state.user} loggedIn={this.state.loggedIn} title={'tbd'} />
-       {
+      <div style={{ width: '100%', height: '100%' }}>
+        <Nav
+          logIn={this.logIn}
+          logOut={this.logOut}
+          user={this.state.user}
+          loggedIn={this.state.loggedIn}
+          title={'tbd'}
+        />
+        {
           this.props.children ?
             <section className="child">
               {children}
             </section> :
             null
         }
-
       </div>
     );
   }

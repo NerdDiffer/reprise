@@ -50,4 +50,3 @@ LandingPage.propTypes = {
 };
 
 export default LandingPage;
-
