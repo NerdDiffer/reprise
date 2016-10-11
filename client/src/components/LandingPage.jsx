@@ -33,7 +33,7 @@ const LandingPage = () => (
         <Divider />
       </section>
       <section className="createRoom">
-        <Link to="/createorjoin">
+        <Link to="/green-room">
           <RaisedButton
             label="Start"
             style={buttonStyles}

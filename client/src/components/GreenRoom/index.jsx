@@ -13,9 +13,9 @@ import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import Divider from 'material-ui/Divider';
 import Dialog from 'material-ui/Dialog';
 import Paper from 'material-ui/Paper';
-import { listPrivateRooms, createPrivateRoom } from '../utils/api';
+import { listPrivateRooms, createPrivateRoom } from '../../utils/api';
 
-class CreateOrJoin extends Component {
+class GreenRoom extends Component {
   constructor(props) {
     super(props);
 
@@ -466,14 +466,14 @@ class CreateOrJoin extends Component {
   }
 }
 
-CreateOrJoin.propTypes = {
+GreenRoom.propTypes = {
   socket: React.PropTypes.object,
   loggedIn: React.PropTypes.bool,
   userInstruments: React.PropTypes.array,
 };
 
-CreateOrJoin.contextTypes = {
+GreenRoom.contextTypes = {
   router: React.PropTypes.object
 };
 
-export default CreateOrJoin;
+export default GreenRoom;

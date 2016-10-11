@@ -8,7 +8,7 @@ import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Room from './components/Room';
-import CreateOrJoin from './components/CreateOrJoin';
+import GreenRoom from './components/GreenRoom';
 import Invalid from './components/Invalid';
 import Metronome from './components/Metronome';
 import BeatSequencer from './components/BeatSequencer';
@@ -19,7 +19,7 @@ export default (
     <Route path="login" component={Login} />
     <Route path="signup" component={Signup} />
     <Route path="room/:roomId" component={Room} />
-    <Route path="createorjoin" component={CreateOrJoin} />
+    <Route path="green-room" component={GreenRoom} />
     <Route path="metronome" component={Metronome} />
     <Route path="beats" component={BeatSequencer} />
     <Route path="*" component={Invalid} />
