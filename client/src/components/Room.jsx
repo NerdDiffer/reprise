@@ -29,6 +29,8 @@ class Room extends React.Component {
     this.handleStart = this.handleStart.bind(this);
     this.handlePeerInfo = this.handlePeerInfo.bind(this);
     this.handleHelp = this.handleHelp.bind(this);
+    this._setMapping = this._setMapping.bind(this);
+    this._setInstrument = this._setInstrument.bind(this);
     this.selectInstrument = this.selectInstrument.bind(this);
   }
 
@@ -202,61 +204,54 @@ class Room extends React.Component {
     });
   }
 
-  selectInstrument(index) {
-    // this.setState({ instrument: instruments[index] });
+  _setMapping(index) {
+    const mappings = this.props.extraInstruments.map(a => ({
+      A: typeof a === 'string' ? JSON.parse(a.A) : a.A,
+      S: typeof a === 'string' ? JSON.parse(a.S) : a.S,
+      D: typeof a === 'string' ? JSON.parse(a.D) : a.D,
+      F: typeof a === 'string' ? JSON.parse(a.F) : a.F,
+      G: typeof a === 'string' ? JSON.parse(a.G) : a.G,
+      H: typeof a === 'string' ? JSON.parse(a.H) : a.H,
+      J: typeof a === 'string' ? JSON.parse(a.J) : a.J,
+      K: typeof a === 'string' ? JSON.parse(a.K) : a.K,
+      L: typeof a === 'string' ? JSON.parse(a.L) : a.L
+    }));
+
     this.setState({
-      mapping: this.props.userInstruments.map(a => (
-        {
-          A: typeof a === 'string'?JSON.parse(a.A): a.A,
-          S: typeof a === 'string'?JSON.parse(a.S): a.S,
-          D: typeof a === 'string'?JSON.parse(a.D): a.D,
-          F: typeof a === 'string'?JSON.parse(a.F): a.F,
-          G: typeof a === 'string'?JSON.parse(a.G): a.G,
-          H: typeof a === 'string'?JSON.parse(a.H): a.H,
-          J: typeof a === 'string'?JSON.parse(a.J): a.J,
-          K: typeof a === 'string'?JSON.parse(a.K): a.K,
-          L: typeof a === 'string'?JSON.parse(a.L): a.L,
-        }
-      ))[index - 3],
-      instrument: instruments.concat(this.props.userInstruments.map(a => (
-         `Your Instrument: ${a.instrumentName||a.name}`
-      )))[index]
+      mapping: mappings[index - 3]
     });
+  }
+
+  _setInstrument(index) {
+    const namesOfExtraInstruments = this.props.extraInstruments.map(a => {
+      const name = a.instrumentName || a.name;
+      return `Your Instrument: ${name}`
+    });
+    const list = instruments.concat(namesOfExtraInstruments);
+    const newInstrument = list[index];
+
+    this.setState({
+      instrument: newInstrument
+    });
+  }
+
+  selectInstrument(index) {
+    _setMapping(index);
+    _setInstrument(index);
+
     if (this.state.connected) {
-      this.props.socket.emit('select instrument', {
+      const instrumentData = {
         roomId: this.props.params.roomId,
         id: connectionManager.id(),
-        instrument: instruments.concat(this.props.userInstruments.map(a => (
-         `Your Instrument: ${a.instrumentName||a.name}`
-        )))[index]
-      });
+        instrument: this.state.instrument
+      };
+
+      this.props.socket.emit('select instrument', instrumentData);
     }
   }
 
   render() {
     console.log('current instrument', this.state.instrument);
-
-    const setMapping = index => {
-      // should always be empty. Wtf is this garbage method?
-      this.setState({
-        mapping: this.props.userInstruments.map(a => (
-          {
-            A: typeof a === 'string'?JSON.parse(a.A): a.A,
-            S: typeof a === 'string'?JSON.parse(a.S): a.S,
-            D: typeof a === 'string'?JSON.parse(a.D): a.D,
-            F: typeof a === 'string'?JSON.parse(a.F): a.F,
-            G: typeof a === 'string'?JSON.parse(a.G): a.G,
-            H: typeof a === 'string'?JSON.parse(a.H): a.H,
-            J: typeof a === 'string'?JSON.parse(a.J): a.J,
-            K: typeof a === 'string'?JSON.parse(a.K): a.K,
-            L: typeof a === 'string'?JSON.parse(a.L): a.L,
-          }
-        ))[index - 3],
-        instrument: instruments.concat(this.props.userInstruments.map(a => (
-           `Your Instrument: ${a.instrumentName||a.name}`
-        )))[index]
-      });
-    };
 
     return (
       <div>
@@ -276,9 +271,9 @@ class Room extends React.Component {
             /> :
             <SelectInstrument
               extraInstruments={this.props.userInstruments}
-              handleSelect={setMapping}
-              handleClick={this.handleStart}
               size="normal"
+              handleClick={this.handleStart}
+              handleSelect={this.selectInstrument}
             />
         }
       </div>
