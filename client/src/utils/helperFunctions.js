@@ -82,6 +82,15 @@ const mapDrumIDToSounds= {
   '#urCymbal': 'sound',
 };
 
+const generateRange = len => {
+  const array = [];
+
+  for (let i = 0; i < len; i++) {
+    array.push(i);
+  }
+
+  return array;
+};
 
 module.exports={
   mapPianoKeysToIds,
@@ -91,4 +100,5 @@ module.exports={
   mapBlackPianoKeysToIds,
   envelopeValue,
   mapDrumIDToSounds,
+  generateRange
 };
