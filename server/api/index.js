@@ -2,7 +2,6 @@ const express = require('express');
 const accounts = require('./accounts');
 const oauth = require('./oauth');
 const rooms = require('./rooms');
-const misc = require('./misc');
 
 const router = express.Router();
 
@@ -19,10 +18,6 @@ router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
 router.post('/api/rooms', rooms.createPrivateRoom);
 router.get('/api/rooms', rooms.listPrivateRooms);
 
-// Misc (figure out where these should go): `/api/misc`
-router.get('/api/misc/getUserInfo', misc.getUserInfo);
-router.get('/api/misc/fbLoggedIn', misc.fbLoggedIn);
-
 module.exports = router;
 
 /**
@@ -36,9 +31,6 @@ module.exports = router;
 
 // app.get('/auth/facebook', oauth.facebook);
 // app.get('/auth/facebook/callback', oauth.facebookCallback);
-
-// app.get("/getUserInfo", misc.getUserInfo);
-// app.get("/fbLoggedIn", misc.fbLoggedIn);
 
 // app.post('/makeprivateroom', rooms.createPrivateRoom);
 // app.get('/getprivaterooms', rooms.getPrivateRooms);

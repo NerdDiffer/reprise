@@ -116,24 +116,6 @@ io.on('connection', socket => {
     io.to(`/#${answer.to}`).emit('answer', answer);
   });
 
-  socket.on('newInstCreated', instrument => {
-    Instrument.create({
-      userName: instrument.userName,
-      instrumentName: instrument.name,
-      A: instrument.A,
-      S: instrument.S,
-      D: instrument.D,
-      F: instrument.F,
-      G: instrument.G,
-      H: instrument.H,
-      J: instrument.J,
-      K: instrument.K,
-      L: instrument.L,
-    }).then(instrumentEntry => {
-        // no op
-    });
-  });
-
   socket.on('get rooms info', id => {
     // send info to populate creaorjoin open room table
     io.to(`/#${id}`).emit('give rooms info', getRoomsInfo(rooms));

@@ -37,10 +37,6 @@ const NavMenuIcon = (props) => (
       primaryText="Signout!"
       containerElement={<Link to="/" />}
     />:null}
-    {props.loggedIn?<MenuItem
-      primaryText="Make your own instrument!"
-      containerElement={<Link to="/MakeInstrument" />}
-    />:null}
   </IconMenu>
 );
 

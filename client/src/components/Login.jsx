@@ -39,7 +39,6 @@ class Login extends Component {
 
 Login.propTypes = {
   params: React.PropTypes.object,
-  updateUserInstrument: React.PropTypes.func,
   logIn: React.PropTypes.func,
 };
 

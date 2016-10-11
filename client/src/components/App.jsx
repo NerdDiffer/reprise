@@ -15,11 +15,10 @@ class App extends Component {
     this.state = {
       loggedIn: false,
       user: "",
-      userInstruments: []
+      userInstruments: [] // Here temporarily
     };
     this.logIn = this.logIn.bind(this);
     this.logOut = this.logOut.bind(this);
-    this.updateUserInstrument = this.updateUserInstrument.bind(this);
   }
 
   getChildContext() {
@@ -27,41 +26,20 @@ class App extends Component {
   }
 
   componentDidMount() {
-    $.get("/api/misc/getUserInfo", (resp, err) => {
-      if (resp[0] === null) {
-      } else {
-        this.logIn(JSON.stringify(resp[0]), resp[1]);
-      }
-    });
-
-    $.get("/api/misc/fbLoggedIn", (response, err) => {
-      if (response !== "false") {
-        this.logIn(response[0], response[1]);
-      } else {
-        // console.log('not logged to fb');
-      }
-    });
+    // previously, there was a call to `this.logIn` here
   }
 
-  updateUserInstrument(totalInstruments) {
-    this.setState({
-      userInstruments: totalInstruments,
-    });
-  }
-
-  logIn(userName, userInstruments) {
+  logIn(userName) {
     this.setState({
       loggedIn: true,
-      user: userName,
-      userInstruments,
+      user: userName
     });
   }
 
   logOut() {
     this.setState({
       loggedIn: false,
-      user: "",
-      userInstruments: [],
+      user: ""
     });
   }
 
@@ -73,13 +51,12 @@ class App extends Component {
          logOut: this.logOut,
          user: this.state.user,
          userInstruments: this.state.userInstruments,
-         updateUserInstrument: this.updateUserInstrument,
          socket: io()
        })
     ));
     return (
      <div style={{ width: '100%', height: '100%' }}>
-        <Nav userInstruments={this.state.userInstruments} logIn={this.logIn} logOut={this.logOut} user={this.state.user} loggedIn={this.state.loggedIn} title={'tbd'} />
+        <Nav logIn={this.logIn} logOut={this.logOut} user={this.state.user} loggedIn={this.state.loggedIn} title={'tbd'} />
        {
           this.props.children ?
             <section className="child">

@@ -1,14 +1,6 @@
 import axios from 'axios';
 
 module.exports = {
-  getUserInfo: cb => {
-    const url = '/api/misc/getUserInfo';
-
-    fetch(url)
-      .then(result => {
-        return cb(result);
-      });
-  },
   postToLogin: ({ username, password }) => {
     const url = '/api/accounts/login';
     const options = {
