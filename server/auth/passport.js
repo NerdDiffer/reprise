@@ -3,14 +3,14 @@ const { Strategy } = require('passport-facebook');
 const { User } = require('../db/models');
 require('dotenv').config();
 
-const { client_Id, client_Secret, callbackURL } = process.env;
+const { clientID, clientSecret, callbackURL } = process.env;
 
 /* Strategy Configuration */
 // https://github.com/jaredhanson/passport-facebook
 
 const strategyParams = {
-  clientID: client_Id,
-  clientSecret: client_Secret,
+  clientID,
+  clientSecret,
   callbackURL
 };
 

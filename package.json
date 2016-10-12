@@ -18,7 +18,8 @@
     "db:connect": "psql -d reprise_development -U reprise",
     "db:reset": "$SHELL scripts/db/reset.sh",
     "deploy:archive": "$SHELL scripts/deploy/archive.sh",
-    "deploy:install": "$SHELL scripts/deploy/install.sh"
+    "deploy:install": "$SHELL scripts/deploy/install.sh",
+    "setup:env_vars": "$SHELL scripts/setup/env_vars.sh"
   },
   "repository": {
     "type": "git",
