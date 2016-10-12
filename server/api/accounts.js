@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs');
 const { hasSession, clearSession, createSession } = require('../auth/sessionHelpers');
 const { User, Instrument } = require('../db/models');
 
@@ -22,7 +21,7 @@ module.exports.login = (req, res) => {
     if (!person) {
       res.status(400).json('Wrong username/password combination');
     } else {
-      bcrypt.compare(password, person.hashed_password, (err, matches) => {
+      User.comparePassword(password, person.hashed_password, (err, matches) => {
         if (!matches) {
           res.status(400).json('Wrong username/password combination');
         } else {
@@ -48,17 +47,17 @@ module.exports.signup = (req, res) => {
         const msg = `User already exists by the name, ${username}`;
         res.status(400).json(msg);
       } else {
-        // TODO: user asynchronous methods instead
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(password, salt);
+        User.hashPassword(password, (err, results) => {
+          const { hashed_password, salt } = results;
 
-        User.create({
-          name: username,
-          hashed_password: hash,
-          salt,
-        }).then(newUser => {
-          createSession(req, newUser.id);
-          res.redirect('/');
+          User.create({
+            name: username,
+            hashed_password,
+            salt
+          }).then(newUser => {
+            createSession(req, newUser.id);
+            res.redirect('/');
+          });
         });
       }
     });

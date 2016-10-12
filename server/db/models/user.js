@@ -1,5 +1,7 @@
 'use strict';
 
+const crypt = require('../../auth/crypt');
+
 module.exports = function(sequelize, DataTypes) {
   const User = sequelize.define('User', {
     name: DataTypes.STRING,
@@ -15,7 +17,9 @@ module.exports = function(sequelize, DataTypes) {
         User.hasMany(Instrument, { foreignKey: 'user_id' });
         User.hasMany(PrivateRoom, { foreignKey: 'user_id' });
         User.hasOne(Session, { foreignKey: 'user_id' });
-      }
+      },
+      hashPassword: crypt.saltAndHash,
+      comparePassword: crypt.compare
     },
     tableName: 'users'
   });
