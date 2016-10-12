@@ -7,38 +7,58 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 // How to wrap `MenuItem` components inside of `Link` components without warnings?
 // https://github.com/callemall/material-ui/issues/4899
-const NavMenuIcon = (props) => (
-  <IconMenu
-    iconButtonElement={
-      <IconButton>
-        <MoreVertIcon />
-      </IconButton>
-    }
+const NavMenuIcon = ({ loggedIn, clearSessions, FBAuth }) => {
+  const styles = {
+    targetOrigin: { horizontal: 'right', vertical: 'top' },
+    anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+    menuStyle: { backgroundColor: 'rgba(184, 225, 255, 0.5)', color: '#6F8695' }
+  };
 
-    targetOrigin={{ horizontal: 'right', vertical: 'top' }}
-    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-    className="menu"
-    menuStyle={{ backgroundColor: 'rgba(184, 225, 255, 0.5)', color: '#6F8695' }}
-  >
-    {!props.loggedIn?<MenuItem
-      primaryText="Login"
-      containerElement={<Link to="/login" />}
-    />:null}
-    {!props.loggedIn?<MenuItem
-      primaryText="Sign up"
-      containerElement={<Link to="/signup" />}
-    />:null}
-    {!props.loggedIn?<MenuItem
-      primaryText="LI with facebook!"
-      onClick={props.FBAuth}
-    />:null}
-    {props.loggedIn?<MenuItem
-      onClick={props.clearSessions}
-      primaryText="Signout!"
-      containerElement={<Link to="/" />}
-    />:null}
-  </IconMenu>
-);
+  const renderIconButtonElement = () => (
+    <IconButton>
+      <MoreVertIcon />
+    </IconButton>
+  );
+
+  const renderItemsForGuestUsers = () => (
+    <div className="navMenuIcons">
+      <MenuItem
+        primaryText="Login"
+        containerElement={<Link to="/login" />}
+      />
+      <MenuItem
+        primaryText="Sign up"
+        containerElement={<Link to="/signup" />}
+      />
+      <MenuItem
+        primaryText="Login with Facebook"
+        onClick={FBAuth}
+      />
+    </div>
+  );
+
+  const renderItemsForLoggedInUsers = () => (
+    <div className="navMenuIcons">
+      <MenuItem
+        onClick={clearSessions}
+        primaryText="Signout"
+        containerElement={<Link to="/" />}
+      />
+    </div>
+  );
+
+  return (
+    <IconMenu
+      iconButtonElement={renderIconButtonElement()}
+      targetOrigin={styles.targetOrigin}
+      anchorOrigin={styles.anchorOrigin}
+      className="menu"
+      menuStyle={styles.menuStyle}
+    >
+      {loggedIn ? renderItemsForLoggedInUsers() : renderItemsForGuestUsers()}
+    </IconMenu>
+  );
+};
 
 NavMenuIcon.propTypes = {
   loggedIn: React.PropTypes.bool,
