@@ -13,9 +13,11 @@ import Invalid from './components/Invalid';
 import Metronome from './components/Metronome';
 import BeatSequencer from './components/BeatSequencer';
 
+const appName = 'reprise';
+
 export default (
-  <Route path="/" component={App}>
-    <IndexRoute component={LandingPage} />
+  <Route path="/" component={App} title={appName} >
+    <IndexRoute component={LandingPage} title={appName} />
     <Route path="login" component={Login} />
     <Route path="signup" component={Signup} />
     <Route path="room/:roomId" component={Room} />

@@ -25,10 +25,10 @@ const paperStyle = {
   borderRadius: 10
 };
 
-const LandingPage = () => (
+const LandingPage = ({ route }) => (
   <div id="landingPage">
     <Paper style={paperStyle} zDepth={3}>
-      <div className="greeting">Welcome to Jam with Friends!</div>
+      <div className="greeting">Welcome to {route.title}!</div>
       <section className="divider">
         <Divider />
       </section>

@@ -30,7 +30,7 @@ class AppNavBar extends Component {
       <div className="nav">
         <AppBar
           showMenuIconButton={false}
-          title="Jam with Friends"
+          title={this.props.title}
           titleStyle={{ color: '#E8AEB7', cursor: 'pointer', flex: '' }}
           onTitleTouchTap={() => { this.context.router.push('/'); }}
           style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', height: '100%' }}
@@ -52,11 +52,10 @@ AppNavBar.contextTypes = {
 };
 
 AppNavBar.propTypes = {
-  title: React.PropTypes.string,
   loggedIn: React.PropTypes.bool,
   user: React.PropTypes.string,
   logOut: React.PropTypes.func,
-  logIn: React.PropTypes.func,
+  logIn: React.PropTypes.func
 };
 
 export default AppNavBar;

@@ -58,7 +58,7 @@ class App extends Component {
           logOut={this.logOut}
           user={this.state.user}
           loggedIn={this.state.loggedIn}
-          title={'tbd'}
+          title={this.props.route.title}
         />
         {
           this.props.children ?
