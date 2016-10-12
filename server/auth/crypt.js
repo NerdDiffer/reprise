@@ -44,3 +44,9 @@ module.exports.compare = (suppliedPassword, hashedPassword, cb) => {
     }
   });
 };
+
+module.exports.saltAndHashSync = suppliedPassword => {
+  const salt = bcrypt.genSaltSync(ROUNDS);
+  const hashed_password = bcrypt.hashSync(suppliedPassword, salt);
+  return { salt, hashed_password };
+};
