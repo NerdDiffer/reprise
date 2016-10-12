@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
 import { Link } from 'react-router';
 import NavMenuIcon from './NavMenuIcon';
+import $ from 'jquery';
 import { getLogout } from '../../utils/api';
 
 class AppNavBar extends Component {
