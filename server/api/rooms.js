@@ -1,6 +1,6 @@
 /* eslint camelcase: 'off' */
 const { User, PrivateRoom } = require('../db/models');
-const { isLoggedIn, readSession } = require('../auth/sessionHelpers');
+const { isLoggedIn, readSession } = require('../auth/session');
 
 // POST `/api/rooms/`
 module.exports.createPrivateRoom = (req, res) => {

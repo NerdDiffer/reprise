@@ -1,4 +1,4 @@
-const { hasSession, clearSession, createSession } = require('../auth/sessionHelpers');
+const { hasSession, clearSession, createSession } = require('../auth/session');
 const { User, Instrument } = require('../db/models');
 
 // GET `/api/accounts/logout`
@@ -28,8 +28,13 @@ module.exports.login = (req, res) => {
           Instrument.findAll({ where: { user_id: person.id } })
             .then(collection => {
               const userInstruments = collection.map(inst => inst.dataValues);
-              createSession(req, person.id);
-              res.status(200).json(userInstruments);
+              createSession(req, person.id, err => {
+                if (err) {
+                  res.status(500).json(err);
+                } else {
+                  res.status(200).json(userInstruments);
+                }
+              });
             });
         }
       });
@@ -55,8 +60,13 @@ module.exports.signup = (req, res) => {
             hashed_password,
             salt
           }).then(newUser => {
-            createSession(req, newUser.id);
-            res.redirect('/');
+            createSession(req, newUser.id, err => {
+              if (err) {
+                res.status(500).json(err);
+              } else {
+                res.redirect('/');
+              }
+            });
           });
         });
       }
