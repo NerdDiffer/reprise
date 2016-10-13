@@ -1,14 +1,17 @@
 /* eslint new-cap: 'off' */
 const { Router } = require('express');
+const sessions = require('./sessions');
 const accounts = require('./accounts');
 const oauth = require('./oauth');
 const rooms = require('./rooms');
 
 const router = Router();
 
+// Sessions
+router.post('/api/login', sessions.login);
+router.get('/api/logout', sessions.logout);
+
 // Accounts: `/api/accounts/`
-router.get('/api/accounts/logout', accounts.logout);
-router.post('/api/accounts/login', accounts.login);
 router.post('/api/accounts', accounts.signup);
 
 // OAuth: `/api/oauth/`

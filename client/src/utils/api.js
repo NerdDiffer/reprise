@@ -2,7 +2,7 @@ import axios from 'axios';
 
 module.exports = {
   postToLogin: ({ username, password }) => {
-    const url = '/api/accounts/login';
+    const url = '/api/login';
     const options = {
       username,
       password
@@ -32,7 +32,7 @@ module.exports = {
     return axios.post(url, options);
   },
   getLogout: () => {
-    const url = '/api/accounts/logout';
+    const url = '/api/logout';
     return axios.get(url);
   }
 };
