@@ -1,5 +1,5 @@
 const { createSession } = require('../auth/session');
-const { User, Instrument } = require('../db/models');
+const { User } = require('../db/models');
 
 // POST `/api/accounts`
 module.exports.signup = (req, res) => {
@@ -11,7 +11,7 @@ module.exports.signup = (req, res) => {
         const msg = `User already exists by the name, ${username}`;
         res.status(400).json(msg);
       } else {
-        User.hashPassword(password, (err, results) => {
+        User.hashPassword(password, (_err, results) => {
           const { hashed_password, salt } = results;
 
           User.create({

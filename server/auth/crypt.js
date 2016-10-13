@@ -1,3 +1,5 @@
+/* eslint camelcase: 'off' */
+
 const bcrypt = require('bcryptjs');
 
 const ROUNDS = 8;
@@ -5,7 +7,7 @@ const ROUNDS = 8;
 const genSalt = cb => {
   bcrypt.genSalt(ROUNDS, (err, salt) => {
     if (err) {
-      cb(err)
+      cb(err);
     } else {
       cb(null, salt);
     }
@@ -15,7 +17,7 @@ const genSalt = cb => {
 const hash = (suppliedPassword, salt, cb) => {
   bcrypt.hash(suppliedPassword, salt, (err, hashed_password) => {
     if (err) {
-      cb(err)
+      cb(err);
     } else {
       cb(null, hashed_password);
     }
@@ -23,7 +25,7 @@ const hash = (suppliedPassword, salt, cb) => {
 };
 
 module.exports.saltAndHash = (suppliedPassword, cb) => {
-  genSalt((err, salt) => {
+  genSalt((_err, salt) => {
     hash(suppliedPassword, salt, (err, hashed_password) => {
       if (err) {
         cb(err);
@@ -31,14 +33,14 @@ module.exports.saltAndHash = (suppliedPassword, cb) => {
         const results = { salt, hashed_password };
         cb(null, results);
       }
-    })
+    });
   });
 };
 
 module.exports.compare = (suppliedPassword, hashedPassword, cb) => {
   bcrypt.compare(suppliedPassword, hashedPassword, (err, isPasswordMatch) => {
     if (err) {
-      cb(err)
+      cb(err);
     } else {
       cb(null, isPasswordMatch);
     }

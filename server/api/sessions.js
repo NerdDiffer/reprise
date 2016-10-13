@@ -12,7 +12,7 @@ module.exports.login = (req, res) => {
     if (!person) {
       res.status(400).json('Wrong username/password combination');
     } else {
-      User.comparePassword(password, person.hashed_password, (err, matches) => {
+      User.comparePassword(password, person.hashed_password, (_err, matches) => {
         if (!matches) {
           res.status(400).json('Wrong username/password combination');
         } else {
