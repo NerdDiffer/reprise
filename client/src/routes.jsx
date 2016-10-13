@@ -5,8 +5,8 @@ import { Route, IndexRoute } from 'react-router';
 // Local Imports
 import App from './components/App';
 import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import Signup from './components/Signup';
+import Login from './components/Forms/Login';
+import Signup from './components/Forms/Signup';
 import Room from './components/Room';
 import GreenRoom from './components/GreenRoom';
 import Invalid from './components/Invalid';

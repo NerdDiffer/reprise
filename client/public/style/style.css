@@ -568,22 +568,22 @@ input:invalid {
   vertical-align: inherit;
 }
 
-#signupContent {
-   position:absolute;
-   top:30%;
-   left:40%;
- }
-
 #testPiano {
   position:relative;
   top:30%;
  }
- 
- #loginContent {
+
+#signupContent {
   position:absolute;
   top:30%;
   left:40%;
- }
+}
+
+form.signup, form.login {
+  width: 100%;
+  margin: 10% auto;
+  text-align: center;
+}
 
  #UserMakeInstrumentRoom {
   position:static;
