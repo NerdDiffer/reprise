@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Play digital instruments, like Jam with Chrome",
   "main": "server/index.js",
-  "engine": {
+  "engines": {
     "node": ">=6.4.0"
   },
   "scripts": {
@@ -19,7 +19,10 @@
     "db:reset": "$SHELL scripts/db/reset.sh",
     "deploy:archive": "$SHELL scripts/deploy/archive.sh",
     "deploy:install": "$SHELL scripts/deploy/install.sh",
-    "setup:env_vars": "$SHELL scripts/setup/env_vars.sh"
+    "setup:env_vars": "$SHELL scripts/setup/env_vars.sh",
+    "cors": "chromium http://localhost:3000 --disable-web-security --user-data-dir=$HOME/.config/chromium/Default --incognito",
+    "prestart:heroku": "npm install && npm run build",
+    "start:heroku": "node server/index.js"
   },
   "repository": {
     "type": "git",

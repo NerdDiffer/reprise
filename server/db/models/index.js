@@ -12,7 +12,7 @@ const config       = require(pathToConfig)[env];
 let sequelize;
 
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable]);
+  sequelize = new Sequelize(process.env.DATABASE_URL);
 } else {
   const { database, username, password } = config;
   sequelize = new Sequelize(database, username, password, config);
