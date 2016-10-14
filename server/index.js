@@ -13,7 +13,8 @@ const api = require('./api');
 const app = express();
 const server = http.createServer(app);
 signalingServer.listen(server);
-require('dotenv').config();
+
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config(); }
 
 /* Middleware */
 app.use(logger('dev'));

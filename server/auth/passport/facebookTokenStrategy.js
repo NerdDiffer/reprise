@@ -1,6 +1,7 @@
 const Strategy = require('passport-facebook-token');
 const { User } = require('../../db/models');
-require('dotenv').config();
+
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config(); }
 
 const { clientID, clientSecret, callbackURL } = process.env;
 

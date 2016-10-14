@@ -4,7 +4,7 @@ const debug = require('debug')('reprise');
  */
 const Axios = require('axios');
 
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config(); }
 const { clientID, clientSecret } = process.env;
 
 // configure axios client

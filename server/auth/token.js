@@ -1,5 +1,5 @@
 const jwt = require('jwt-simple');
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config(); }
 
 const generateToken = user => {
   const payload = {
