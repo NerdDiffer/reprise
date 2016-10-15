@@ -117,8 +117,8 @@ class GreenRoom extends Component {
 }
 
 GreenRoom.propTypes = {
-  socket: React.PropTypes.object.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired
+  socket: React.PropTypes.object,
+  loggedIn: React.PropTypes.bool
 };
 
 GreenRoom.contextTypes = {

@@ -14,14 +14,31 @@ const NavMenuIcon = ({ loggedIn, clearSessions, FBAuth }) => {
     menuStyle: { backgroundColor: 'rgba(184, 225, 255, 0.5)', color: '#6F8695' }
   };
 
-  const renderIconButtonElement = () => (
+  const iconButtonElement = (
     <IconButton>
       <MoreVertIcon />
     </IconButton>
   );
 
-  const renderItemsForGuestUsers = () => (
-    <div className="navMenuIcons">
+  const iconMenuOptions = {
+    iconButtonElement,
+    targetOrigin: styles.targetOrigin,
+    anchorOrigin: styles.anchorOrigin,
+    menuStyle: styles.menuStyle
+  };
+
+  const itemsForLoggedInUsers = options => (
+    <IconMenu {...options}>
+      <MenuItem
+        onClick={clearSessions}
+        primaryText="Signout"
+        containerElement={<Link to="/" />}
+      />
+    </IconMenu>
+  );
+
+  const itemsForGuestUsers = options => (
+    <IconMenu {...options}>
       <MenuItem
         primaryText="Login"
         containerElement={<Link to="/login" />}
@@ -34,29 +51,17 @@ const NavMenuIcon = ({ loggedIn, clearSessions, FBAuth }) => {
         primaryText="Login with Facebook"
         onClick={FBAuth}
       />
-    </div>
-  );
-
-  const renderItemsForLoggedInUsers = () => (
-    <div className="navMenuIcons">
-      <MenuItem
-        onClick={clearSessions}
-        primaryText="Signout"
-        containerElement={<Link to="/" />}
-      />
-    </div>
+    </IconMenu>
   );
 
   return (
-    <IconMenu
-      iconButtonElement={renderIconButtonElement()}
-      targetOrigin={styles.targetOrigin}
-      anchorOrigin={styles.anchorOrigin}
-      className="menu"
-      menuStyle={styles.menuStyle}
-    >
-      {loggedIn ? renderItemsForLoggedInUsers() : renderItemsForGuestUsers()}
-    </IconMenu>
+    <div className='menu'>
+      {(
+        loggedIn ?
+          itemsForLoggedInUsers(iconMenuOptions) :
+          itemsForGuestUsers(iconMenuOptions)
+      )}
+    </div>
   );
 };
 
