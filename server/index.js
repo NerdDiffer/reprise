@@ -8,7 +8,6 @@ const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
 
 const signalingServer = require('./signaling'); // WebRTC signaling server
-const { store } = require('./auth/session');
 const passport = require('./auth/passport');
 const api = require('./api');
 
@@ -31,9 +30,8 @@ app.use(express.static(pathToStaticDir, { redirect: false }));
 
 app.use(expressSession({
   secret: process.env.sessions_secret,
-  resave: false, // `connect-session-sequelize` implements `touch` method. So false is ok.
-  saveUninitialized: false, // reduce storage needs with false
-  store
+  resave: false, // If store implements `touch`, then set to false
+  saveUninitialized: false // reduce storage needs with false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
