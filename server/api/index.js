@@ -33,7 +33,7 @@ router.get('/api/oauth/facebook', oauth.facebook);
 router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
 
 // Private rooms: `/api/rooms/`
-router.post('/api/rooms', rooms.createPrivateRoom);
-router.get('/api/rooms', rooms.listPrivateRooms);
+router.post('/api/rooms', requireAuth, rooms.createPrivateRoom);
+router.get('/api/rooms', requireAuth, rooms.listPrivateRooms);
 
 module.exports = router;
