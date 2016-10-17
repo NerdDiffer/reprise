@@ -1,6 +1,5 @@
-const passport = require('passport');
 const { Strategy } = require('passport-facebook');
-const { User } = require('../db/models');
+const { User } = require('../../db/models');
 require('dotenv').config();
 
 const { clientID, clientSecret, callbackURL } = process.env;
@@ -30,20 +29,4 @@ const verifyStrategy = (accessToken, refreshToken, profile, done) => (
 
 const strategy = new Strategy(strategyParams, verifyStrategy);
 
-passport.use(strategy);
-
-/* Serialization, Deserializtion */
-
-passport.serializeUser((user, done) => {
-  const id = typeof user === 'number' ? user : user[0].dataValues.id;
-  done(null, id);
-});
-
-passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then(user => {
-      done(null, user.id);
-    });
-});
-
-module.exports = passport;
+return strategy;
