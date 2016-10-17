@@ -19,7 +19,6 @@ const verifyStrategy = (accessToken, refreshToken, profile, done) => (
     defaults: {
       name: profile.displayName,
       hashed_password: null,
-      token: accessToken,
       salt: null
     }
   })

@@ -7,6 +7,7 @@ module.exports.facebook = passport.authenticate('facebook');
 module.exports.facebookCallback = (
   passport.authenticate('facebook', {
     successReturnToOrRedirect: '/',
-    failureRedirect: '/login'
+    failureRedirect: '/login',
+    session: false
   })
 );
