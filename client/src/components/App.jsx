@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import io from 'socket.io-client';
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-
 import Nav from '../components/Nav';
+import storage from '../utils/storage';
 
 class App extends Component {
   constructor(props) {
@@ -21,18 +21,31 @@ class App extends Component {
     return { muiTheme: getMuiTheme(baseTheme) };
   }
 
+  componentWillMount() {
+    const authToken = storage.getToken();
+
+    if (authToken) {
+      this.setState({ loggedIn: true });
+    }
+  }
+
   componentDidMount() {
     // previously, there was a call to `this.logIn` here
   }
 
-  logIn(userName) {
+  logIn(userName, userInstruments, token) {
+    storage.setToken(token);
+
     this.setState({
       loggedIn: true,
-      user: userName
+      user: userName,
+      userInstruments
     });
   }
 
   logOut() {
+    storage.clearToken();
+
     this.setState({
       loggedIn: false,
       user: ""

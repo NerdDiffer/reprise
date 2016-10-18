@@ -7,8 +7,8 @@ import { postToSignup } from '../../utils/api';
 const Signup = (props, context) => {
   const submit = ({ username, password }) => {
     return postToSignup({ username, password })
-      .then(result => {
-        props.logIn(username, []);
+      .then(response => {
+        props.logIn(username, [], response.data.auth_token);
         context.router.push('/');
         // TODO: set a success message somewhere
         return;
