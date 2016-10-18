@@ -28,4 +28,4 @@ const verifyStrategy = (accessToken, refreshToken, profile, done) => (
 
 const strategy = new Strategy(strategyParams, verifyStrategy);
 
-return strategy;
+module.exports = strategy;
