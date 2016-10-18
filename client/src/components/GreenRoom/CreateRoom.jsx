@@ -159,7 +159,7 @@ class CreateRoom extends Component {
 
     const data = {
       roomId: this.props.privateRooms[index],
-      // userName: this.props.user,
+      // userName: this.props.name,
       isPrivate: true,
     };
 
@@ -170,7 +170,7 @@ class CreateRoom extends Component {
   handlePrivateRoomToggle(e, value) {
     e.preventDefault();
 
-    if (value === 'private' && !this.props.loggedIn) {
+    if (value === 'private' && !this.props.isLoggedIn) {
       this.setState({
         togglePrivateRoom: false,
         radioButtonVal: 'public',
@@ -335,7 +335,7 @@ class CreateRoom extends Component {
           />
         </RadioButtonGroup>
         {renderRoomDescription(this.state.togglePrivateRoom)}
-        {this.props.loggedIn ? renderPrivateRoomsList() : null}
+        {this.props.isLoggedIn ? renderPrivateRoomsList() : null}
         {this.state.showMustBeLoggedIn ? renderDialog() : null}
       </div>
     );
@@ -344,7 +344,7 @@ class CreateRoom extends Component {
 
 CreateRoom.propTypes = {
   socket: React.PropTypes.object.isRequired,
-  loggedIn: React.PropTypes.bool.isRequired,
+  isLoggedIn: React.PropTypes.bool.isRequired,
   privateRooms: React.PropTypes.array.isRequired,
   showRoomTakenMessage: React.PropTypes.bool.isRequired,
   navigateToLogin: React.PropTypes.func.isRequired

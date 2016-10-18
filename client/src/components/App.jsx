@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import io from 'socket.io-client';
+import update from 'react-addons-update';
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Nav from '../components/Nav';
@@ -9,9 +10,11 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loggedIn: false,
-      user: "",
-      userInstruments: [] // Here temporarily
+      user: {
+        isLoggedIn: false,
+        name: '',
+        instruments: []
+      }
     };
     this.logIn = this.logIn.bind(this);
     this.logOut = this.logOut.bind(this);
@@ -24,8 +27,15 @@ class App extends Component {
   componentWillMount() {
     const authToken = storage.getToken();
 
-    if (authToken) {
-      this.setState({ loggedIn: true });
+    if (!authToken) {
+      this.logOut(); // reset user state to defaults
+    } else {
+      const user = update(
+        this.state.user,
+        { $merge: { isLoggedIn: true } }
+      );
+
+      this.setState({ user }); // ensure user stays logged in if page refresh
     }
   }
 
@@ -33,33 +43,36 @@ class App extends Component {
     // previously, there was a call to `this.logIn` here
   }
 
-  logIn(userName, userInstruments, token) {
+  logIn(name, instruments, token) {
     storage.setToken(token);
 
-    this.setState({
-      loggedIn: true,
-      user: userName,
-      userInstruments
-    });
+    const user = {
+      isLoggedIn: true,
+      name,
+      instruments
+    };
+
+    this.setState({ user });
   }
 
   logOut() {
     storage.clearToken();
 
-    this.setState({
-      loggedIn: false,
-      user: ""
-    });
+    const user = {
+      isLoggedIn: false,
+      name: '',
+      instruments: []
+    };
+
+    this.setState({ user });
   }
 
   render() {
     const children = React.Children.map(this.props.children, child => (
        React.cloneElement(child, {
-         loggedIn: this.state.loggedIn,
          logIn: this.logIn,
          logOut: this.logOut,
          user: this.state.user,
-         userInstruments: this.state.userInstruments,
          socket: io()
        })
     ));
@@ -69,8 +82,8 @@ class App extends Component {
         <Nav
           logIn={this.logIn}
           logOut={this.logOut}
-          user={this.state.user}
-          loggedIn={this.state.loggedIn}
+          name={this.state.user.name}
+          isLoggedIn={this.state.user.isLoggedIn}
           title={this.props.route.title}
         />
         {

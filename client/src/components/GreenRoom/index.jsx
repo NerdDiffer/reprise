@@ -41,7 +41,7 @@ class GreenRoom extends Component {
     this.props.socket.on('give rooms info', this.updateRooms);
 
     // get private rooms from server/db if user is logged in
-    if (this.props.loggedIn) {
+    if (this.props.isLoggedIn) {
       listPrivateRooms()
         .then(data => {
           const privateRooms = data[0] === null ? [] : data;
@@ -101,7 +101,7 @@ class GreenRoom extends Component {
           </section>
           <CreateRoom
             socket={this.props.socket}
-            loggedIn={this.props.loggedIn}
+            isLoggedIn={this.props.user.isLoggedIn}
             privateRooms={this.state.privateRooms}
             showRoomTakenMessage={this.state.showRoomTakenMessage}
             navigateToLogin={this.navigateToLogin}
@@ -118,7 +118,11 @@ class GreenRoom extends Component {
 
 GreenRoom.propTypes = {
   socket: React.PropTypes.object,
-  loggedIn: React.PropTypes.bool
+  user: React.PropTypes.shape({
+    name: React.PropTypes.string, // can take away?
+    isLoggedIn: React.PropTypes.bool, // should be required?
+    instruments: React.PropTypes.array // can take away?
+  })
 };
 
 GreenRoom.contextTypes = {

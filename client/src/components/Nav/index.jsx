@@ -38,7 +38,7 @@ class AppNavBar extends Component {
           iconElementRight={
             <NavMenuIcon
               id="menuicon"
-              loggedIn={this.props.loggedIn}
+              isLoggedIn={this.props.isLoggedIn}
               clearSessions={this.clearSessions}
               FBAuth={this.FBAuth}
             />
@@ -53,8 +53,8 @@ AppNavBar.contextTypes = {
 };
 
 AppNavBar.propTypes = {
-  loggedIn: React.PropTypes.bool,
-  user: React.PropTypes.string,
+  isLoggedIn: React.PropTypes.bool,
+  name: React.PropTypes.string,
   logOut: React.PropTypes.func,
   logIn: React.PropTypes.func
 };

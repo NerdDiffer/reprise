@@ -222,7 +222,7 @@ class Room extends React.Component {
   }
 
   _setMapping(index) {
-    const mappings = this.props.userInstruments.map(a => ({
+    const mappings = this.props.user.instruments.map(a => ({
       A: typeof a === 'string' ? JSON.parse(a.A) : a.A,
       S: typeof a === 'string' ? JSON.parse(a.S) : a.S,
       D: typeof a === 'string' ? JSON.parse(a.D) : a.D,
@@ -240,7 +240,7 @@ class Room extends React.Component {
   }
 
   _setInstrument(index) {
-    const namesOfExtraInstruments = this.props.userInstruments.map(a => {
+    const namesOfExtraInstruments = this.props.user.instruments.map(a => {
       const name = a.instrumentName || a.name;
       return `Your Instrument: ${name}`;
     });
@@ -281,13 +281,13 @@ class Room extends React.Component {
         {
           this.state.startJam ?
             <JamRoom
-              extraInstruments={this.props.userInstruments}
+              extraInstruments={this.props.user.instruments}
               instrument={this.state.instrument}
               peers={this.state.peers}
               onReselect={this.selectInstrument}
             /> :
             <SelectInstrument
-              extraInstruments={this.props.userInstruments}
+              extraInstruments={this.props.user.instruments}
               size="normal"
               handleClick={this.handleStart}
               handleSelect={this.selectInstrument}
@@ -300,9 +300,11 @@ class Room extends React.Component {
 
 Room.propTypes = {
   params: React.PropTypes.object,
-  userInstruments: React.PropTypes.array,
   socket: React.PropTypes.object,
-  logIn: React.PropTypes.func
+  logIn: React.PropTypes.func,
+  user: React.PropTypes.shape({
+    instruments: React.PropTypes.array.isRequired
+  })
 };
 
 Room.contextTypes = {
