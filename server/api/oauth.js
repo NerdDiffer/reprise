@@ -11,3 +11,6 @@ module.exports.facebookCallback = (
     session: false
   })
 );
+
+// POST `api/oauth/facebookToken`
+module.exports.facebookToken = passport.authenticate('facebook-token');

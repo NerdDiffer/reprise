@@ -31,6 +31,13 @@ router.post('/api/accounts', accounts.signup);
 // OAuth: `/api/oauth/`
 router.get('/api/oauth/facebook', oauth.facebook);
 router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
+router.post('/api/oauth/facebook/token',
+  oauth.facebookToken,
+  (req, res) => {
+    const msg = req.user ? 200 : 401;
+    res.send(msg);
+  }
+);
 
 // Private rooms: `/api/rooms/`
 router.post('/api/rooms', requireAuth, rooms.createPrivateRoom);
