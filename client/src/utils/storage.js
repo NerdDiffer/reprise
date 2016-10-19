@@ -2,15 +2,16 @@
 
 // helpers for local storage
 
-// Authentication token
-const TOKEN_KEY = 'auth_token';
+const createStorageManager = KEY => ({
+  get: () => window.localStorage.getItem(KEY),
+  set: token => window.localStorage.setItem(KEY, token),
+  clear: () => window.localStorage.removeItem(KEY)
+});
 
-const getToken = () => window.localStorage.getItem(TOKEN_KEY);
-const setToken = token => window.localStorage.setItem(TOKEN_KEY, token);
-const clearToken = () => window.localStorage.removeItem(TOKEN_KEY);
+const authStorage = createStorageManager('auth_token');
+const fbAccessStorage = createStorageManager('fb_access_token');
 
-export default {
-  getToken,
-  setToken,
-  clearToken
+export {
+  authStorage,
+  fbAccessStorage
 };

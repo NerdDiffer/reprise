@@ -34,5 +34,17 @@ module.exports = {
   getLogout: () => {
     const url = '/api/logout';
     return axios.get(url);
+  },
+  generateLongLivedToken: ({ accessToken }) => {
+    const url = '/api/oauth/facebook/token';
+    const options = { accessToken };
+
+    return axios.post(url, options);
+  },
+  passportFacebookToken: ({ accessToken }) => {
+    const url = '/api/oauth/passport-facebook-token';
+    const options = { access_token: accessToken };
+
+    return axios.post(url, options);
   }
 };

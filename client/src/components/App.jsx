@@ -4,7 +4,9 @@ import update from 'react-addons-update';
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Nav from '../components/Nav';
-import storage from '../utils/storage';
+import LoadSDK from '../components/Facebook/LoadSDK';
+import FB_API_Interact from '../components/Facebook/Interact';
+import { authStorage } from '../utils/storage';
 
 class App extends Component {
   constructor(props) {
@@ -25,7 +27,7 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const authToken = storage.getToken();
+    const authToken = authStorage.get();
 
     if (!authToken) {
       this.logOut(); // reset user state to defaults
@@ -44,7 +46,7 @@ class App extends Component {
   }
 
   logIn(name, instruments, token) {
-    storage.setToken(token);
+    authStorage.set(token);
 
     const user = {
       isLoggedIn: true,
@@ -56,7 +58,7 @@ class App extends Component {
   }
 
   logOut() {
-    storage.clearToken();
+    authStorage.clear();
 
     const user = {
       isLoggedIn: false,
@@ -79,6 +81,11 @@ class App extends Component {
 
     return (
       <div style={{ width: '100%', height: '100%' }}>
+        <LoadSDK debug={true} />
+        <FB_API_Interact
+          logInToApp={this.logIn}
+          logOutOfApp={this.logOut}
+        />
         <Nav
           logIn={this.logIn}
           logOut={this.logOut}
