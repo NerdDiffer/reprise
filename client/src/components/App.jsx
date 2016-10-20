@@ -4,15 +4,15 @@ import update from 'react-addons-update';
 import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Nav from '../components/Nav';
-import LoadSDK from '../components/Facebook/LoadSDK';
-import FB_API_Interact from '../components/Facebook/Interact';
-import { authStorage } from '../utils/storage';
+import { authStorage, fbAccessStorage } from '../utils/storage';
+import { fbLogout } from '../utils/facebook/auth';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       user: {
+        isFacebookUser: false,
         isLoggedIn: false,
         name: '',
         instruments: []
@@ -45,13 +45,14 @@ class App extends Component {
     // previously, there was a call to `this.logIn` here
   }
 
-  logIn(name, instruments, token) {
+  logIn(name, instruments, token, isFacebookUser = false) {
     authStorage.set(token);
 
     const user = {
       isLoggedIn: true,
       name,
-      instruments
+      instruments,
+      isFacebookUser
     };
 
     this.setState({ user });
@@ -60,10 +61,15 @@ class App extends Component {
   logOut() {
     authStorage.clear();
 
+    if (this.state.isFacebookUser) {
+      fbLogout(() => fbAccessStorage.clear());
+    }
+
     const user = {
       isLoggedIn: false,
       name: '',
-      instruments: []
+      instruments: [],
+      isFacebookUser: false
     };
 
     this.setState({ user });
@@ -81,11 +87,6 @@ class App extends Component {
 
     return (
       <div style={{ width: '100%', height: '100%' }}>
-        <LoadSDK debug={true} />
-        <FB_API_Interact
-          logInToApp={this.logIn}
-          logOutOfApp={this.logOut}
-        />
         <Nav
           logIn={this.logIn}
           logOut={this.logOut}

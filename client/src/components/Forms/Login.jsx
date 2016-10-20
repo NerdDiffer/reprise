@@ -2,6 +2,7 @@ import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Link } from 'react-router';
 import Form from './Form';
+import FacebookLoginButton from '../Facebook/LoginButton';
 import { postToLogin } from '../../utils/api';
 
 const Login = (props, context) => {
@@ -23,12 +24,18 @@ const Login = (props, context) => {
   );
 
   return (
-    <Form
-      className="login"
-      buttonLabel="Login"
-      submit={submit}
-      altButton={altButton}
-    />
+    <div className="login">
+      <Form
+        className="login"
+        buttonLabel="Login"
+        submit={submit}
+        altButton={altButton}
+      />
+      <FacebookLoginButton
+        logInToApp={props.logIn}
+        router={context.router}
+      />
+    </div>
   );
 };
 

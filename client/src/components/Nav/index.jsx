@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
 import { Link } from 'react-router';
 import NavMenuIcon from './NavMenuIcon';
-import $ from 'jquery';
 import { getLogout } from '../../utils/api';
 
 class AppNavBar extends Component {
@@ -11,19 +10,11 @@ class AppNavBar extends Component {
     this.logIn = this.props.logIn.bind(this);
     this.logOut = this.props.logOut.bind(this);
     this.clearSessions = this.clearSessions.bind(this);
-    this.FBAuth = this.FBAuth.bind(this);
   }
 
   clearSessions() {
     getLogout()
       .then(() => this.logOut());
-  }
-
-  // this is written so that passport can do auth and not throw a react warning
-  FBAuth(e) {
-    e.preventDefault();
-    const linkTag = $('<a href="/api/oauth/facebook"></a>');
-    linkTag[0].click();
   }
 
   render() {
@@ -40,7 +31,6 @@ class AppNavBar extends Component {
               id="menuicon"
               isLoggedIn={this.props.isLoggedIn}
               clearSessions={this.clearSessions}
-              FBAuth={this.FBAuth}
             />
           }
         />

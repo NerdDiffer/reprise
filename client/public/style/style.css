@@ -644,3 +644,9 @@ text#step3 {
   bottom: 130px;
   left: 65px;
 }
+
+/* Facebook Login Button */
+
+.login {
+  text-align: center;
+}
