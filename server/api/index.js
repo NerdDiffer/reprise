@@ -4,7 +4,7 @@ const passport = require('../auth/passport');
 const accounts = require('./accounts');
 const oauth = require('./oauth');
 const rooms = require('./rooms');
-const tokens = require('./tokenExchange');
+const tokens = require('./tokens');
 
 /* Authorization middleware */
 
@@ -34,15 +34,9 @@ router.get('/api/oauth/facebook', oauth.facebook);
 router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
 router.post('/api/oauth/passport-facebook-token',
   oauth.facebookToken,
-  (req, res) => {
-    const msg = req.user ? 200 : 401;
-    res.send(msg);
-  }
+  accounts.login
 );
 router.post('/api/oauth/facebook/token', tokens.generateLongLivedToken);
-
-// alt token generation
-router.post('/api/tokens', tokens.generateLongLivedToken);
 
 // Private rooms: `/api/rooms/`
 router.post('/api/rooms', requireAuth, rooms.createPrivateRoom);
