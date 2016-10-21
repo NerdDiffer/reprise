@@ -7,7 +7,7 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 // How to wrap `MenuItem` components inside of `Link` components without warnings?
 // https://github.com/callemall/material-ui/issues/4899
-const NavMenuIcon = ({ isLoggedIn, clearSessions }) => {
+const NavMenuIcon = ({ isLoggedIn, logOut }) => {
   const styles = {
     targetOrigin: { horizontal: 'right', vertical: 'top' },
     anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
@@ -30,8 +30,8 @@ const NavMenuIcon = ({ isLoggedIn, clearSessions }) => {
   const itemsForLoggedInUsers = options => (
     <IconMenu {...options}>
       <MenuItem
-        onClick={clearSessions}
-        primaryText="Signout"
+        onClick={logOut}
+        primaryText="Logout"
         containerElement={<Link to="/" />}
       />
     </IconMenu>
@@ -63,7 +63,7 @@ const NavMenuIcon = ({ isLoggedIn, clearSessions }) => {
 
 NavMenuIcon.propTypes = {
   isLoggedIn: React.PropTypes.bool,
-  clearSessions: React.PropTypes.func,
+  logOut: React.PropTypes.func,
 };
 
 export default NavMenuIcon;

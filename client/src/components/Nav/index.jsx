@@ -2,19 +2,12 @@ import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
 import { Link } from 'react-router';
 import NavMenuIcon from './NavMenuIcon';
-import { getLogout } from '../../utils/api';
 
 class AppNavBar extends Component {
   constructor(props, context) {
     super(props);
     this.logIn = this.props.logIn.bind(this);
     this.logOut = this.props.logOut.bind(this);
-    this.clearSessions = this.clearSessions.bind(this);
-  }
-
-  clearSessions() {
-    getLogout()
-      .then(() => this.logOut());
   }
 
   render() {
@@ -30,7 +23,7 @@ class AppNavBar extends Component {
             <NavMenuIcon
               id="menuicon"
               isLoggedIn={this.props.isLoggedIn}
-              clearSessions={this.clearSessions}
+              logOut={this.props.logOut}
             />
           }
         />
