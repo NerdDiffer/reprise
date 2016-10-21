@@ -1,4 +1,5 @@
 import meshConnection from './meshConnection';
+import debug from '../utils/debug';
 
 const EventEmitter = require('events').EventEmitter;
 
@@ -10,7 +11,7 @@ function setup(room) {
   const conn = meshConnection(room);
   conn.onReady(() => {
     connection = conn;
-    console.log('connection ready');
+    debug('connection ready');
     emitter.emit('status');
   });
 

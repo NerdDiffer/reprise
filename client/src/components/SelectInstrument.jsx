@@ -3,6 +3,7 @@ import Carousel from 'nuka-carousel';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import { instruments } from '../instruments/store';
+import debug from '../utils/debug';
 
 const SelectInstrument = ({ handleSelect, handleClick, size, ownInstrument, extraInstruments }) => {
   size = size || 'normal';
@@ -21,7 +22,10 @@ const SelectInstrument = ({ handleSelect, handleClick, size, ownInstrument, extr
   };
   // why a while loop?  maybe for loop?
   let startIndex = 0;
-  // own instrument will be the instrument name if it is a pre-built instrument, and will a the string 'Your instrument is: instrument' otherwise.
+  // own instrument will be the instrument name if it is a pre-built instrument,
+  // and will a the string 'Your instrument is: instrument' otherwise.
+  debug('ownInstrument\n%o', ownInstrument);
+
   if (ownInstrument) {
     if (ownInstrument[0] === 'Y') {
       startIndex = instruments.length;
@@ -33,11 +37,8 @@ const SelectInstrument = ({ handleSelect, handleClick, size, ownInstrument, extr
         startIndex++;
       }
     }
-  } else {
-    console.log('There was an error.  Own instrument is undefined');
   }
 
-  // console.log('extraInstruments', extraInstruments);
   return (
     <div style={{ textAlign: "center" }}>
       <Carousel

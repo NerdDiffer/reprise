@@ -8,6 +8,7 @@ import MenuItem from 'material-ui/MenuItem';
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import Dialog from 'material-ui/Dialog';
 import { createPrivateRoom } from '../../utils/api';
+import debug from '../../utils/debug';
 
 const styles = {
   main: {
@@ -122,7 +123,7 @@ class CreateRoom extends Component {
         this.props.socket.emit('create room', data);
       })
       .catch(err => {
-        // console.log('Error in creating private room', err);
+        debug('Error in creating private room\n %o', err.response.data);
       });
   }
 

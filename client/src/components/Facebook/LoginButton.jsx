@@ -2,24 +2,22 @@ import React from 'react';
 import FacebookLogin from 'react-facebook-login';
 import { fbAccessStorage } from '../../utils/storage';
 import { passportFacebookToken } from '../../utils/api';
+import debug from '../../utils/debug';
 
 const FacebookLoginButton = (props, context) => {
   const exchangeToken = accessToken => {
-    console.log('Exchanging token:\n', accessToken);
-
     return passportFacebookToken({ accessToken })
       .then(res => {
-        console.log(res);
+        debug('api response\n %o', res);
         return res;
       })
       .catch(err => {
-        console.log(err.config);
-        console.log(err.response);
+        debug('err.config\n %o', err.config);
+        debug('err.response\n %o', err.response);
       });
   };
 
   const setTokenThenLoginToApp = res => {
-    console.log('Logged in');
     const newToken = res.accessToken;
     fbAccessStorage.set(newToken);
 
@@ -38,7 +36,7 @@ const FacebookLoginButton = (props, context) => {
    * for you.
    */
   const handleClick = e => {
-    console.log('clicked fb login button');
+    debug('clicked fb login button');
   };
 
   /**
@@ -58,7 +56,7 @@ const FacebookLoginButton = (props, context) => {
    * @see https://developers.facebook.com/docs/reference/javascript/FB.getLoginStatus/
    */
   const respondToFacebook = res => {
-    console.log('facebook response:\n', res);
+    debug('facebook response:\n %o', res);
 
     // TODO: handle cases where 'status' is not connected. Consider converting
     // this entire component to a class & use lifecycle methods to look at nextProps.

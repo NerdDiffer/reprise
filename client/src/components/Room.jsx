@@ -268,8 +268,6 @@ class Room extends React.Component {
   }
 
   render() {
-    // console.log('current instrument', this.state.instrument);
-
     return (
       <div>
         <Help

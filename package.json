@@ -33,6 +33,7 @@
   "homepage": "https://github.com/NerdDiffer/reprise#readme",
   "devDependencies": {
     "cz-conventional-changelog": "^1.2.0",
+    "debug": "^2.2.0",
     "eslint": "^3.2.2",
     "eslint-config-airbnb": "^10.0.0",
     "eslint-plugin-import": "^1.12.0",
