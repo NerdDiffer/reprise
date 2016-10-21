@@ -27,8 +27,6 @@ router.post('/api/login', validateLogin, accounts.login);
 router.post('/api/accounts', accounts.signup);
 
 // OAuth & tokens
-router.get('/api/oauth/facebook', oauth.facebook);
-router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
 router.post('/api/oauth/passport-facebook-token',
   oauth.facebookToken,
   accounts.login
