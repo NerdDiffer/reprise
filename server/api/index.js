@@ -22,14 +22,11 @@ const validateLogin = passport.authenticate('local', {
 
 const router = Router();
 
-// Login, logout
+// Login, accounts
 router.post('/api/login', validateLogin, accounts.login);
-router.get('/api/logout', accounts.logout);
-
-// Accounts: `/api/accounts/`
 router.post('/api/accounts', accounts.signup);
 
-// OAuth & tokens: `/api/oauth/`
+// OAuth & tokens
 router.get('/api/oauth/facebook', oauth.facebook);
 router.get('/api/oauth/facebook/callback', oauth.facebookCallback);
 router.post('/api/oauth/passport-facebook-token',
@@ -38,7 +35,7 @@ router.post('/api/oauth/passport-facebook-token',
 );
 router.post('/api/oauth/facebook/token', tokens.generateLongLivedToken);
 
-// Private rooms: `/api/rooms/`
+// Private rooms
 router.post('/api/rooms', requireAuth, rooms.createPrivateRoom);
 router.get('/api/rooms', requireAuth, rooms.listPrivateRooms);
 

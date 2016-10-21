@@ -18,12 +18,6 @@ module.exports.login = (req, res) => {
     });
 };
 
-// GET `/api/logout`
-module.exports.logout = (req, res) => {
-  req.logout();
-  res.sendStatus(200);
-};
-
 // POST `/api/accounts`
 module.exports.signup = (req, res) => {
   const { username, password } = req.body;

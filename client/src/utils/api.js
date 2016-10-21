@@ -31,10 +31,6 @@ module.exports = {
 
     return axios.post(url, options);
   },
-  getLogout: () => {
-    const url = '/api/logout';
-    return axios.get(url);
-  },
   generateLongLivedToken: ({ accessToken }) => {
     const url = '/api/oauth/facebook/token';
     const options = { accessToken };
