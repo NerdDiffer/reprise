@@ -1,27 +1,26 @@
 const webpack = require('webpack');
-const path = require('path');
+const PATHS = require('./paths');
 require('dotenv').config();
 
-const SRC_DIR = path.join(__dirname, 'client', 'src');
-const DIST_DIR = path.join(__dirname, 'client', 'public', 'dist');
-
 const config = {
-  devtool: 'inline-sourcemap',
+  devtool: 'inline-source-map',
   resolve: {
     root: __dirname,
     modulesDirectories: ['node_modules'],
     extensions: ['', '.js', '.jsx']
   },
-  entry: [path.join(SRC_DIR, 'index.jsx')],
+  entry: [
+    `${PATHS.SRC}/index.jsx`
+  ],
   output: {
-    path: DIST_DIR,
+    path: PATHS.DIST,
     filename: 'bundle.js'
   },
   module: {
     loaders: [
       {
         test: /\.jsx?/,
-        include: SRC_DIR,
+        include: PATHS.SRC,
         loader: 'babel'
       }
     ]
